@@ -17,6 +17,12 @@ import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
 import TimerIcon from '@material-ui/icons/Timer';
+import PhoneInTalkIcon from '@material-ui/icons/PhoneInTalk';
+import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
+import TaskAltIcon from '@material-ui/icons/TaskAlt';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import AvTimerIcon from '@material-ui/icons/AvTimer';
+import ScheduleIcon from '@material-ui/icons/Schedule';
 
 import { makeStyles } from "@material-ui/core/styles";
 import { grey, blue } from "@material-ui/core/colors";
@@ -38,10 +44,10 @@ import { i18n } from "../../translate/i18n";
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.padding,
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
   },
   fixedHeightPaper: {
     padding: theme.spacing(2),
@@ -107,46 +113,80 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
   },
   card1: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
-    height: "100%",
-    //backgroundColor: "palette",
-    //backgroundColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : theme.palette.primary.main,
-    color: "#eee",
+    height: "160px",
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : "#1DCC91",
+    color: "#ffffff",
+    borderRadius: "24px",
+    boxShadow: "0 12px 40px rgba(29, 204, 145, 0.25)",
+    background: "linear-gradient(135deg, #1DCC91 0%, #16A085 100%)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 20px 60px rgba(29, 204, 145, 0.4)",
+    },
   },
   card2: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
-    height: "100%",
-    //backgroundColor: "palette",
-    //backgroundColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : theme.palette.primary.main,
-    color: "#eee",
+    height: "160px",
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : "#FF6B6B",
+    color: "#ffffff",
+    borderRadius: "24px",
+    boxShadow: "0 12px 40px rgba(255, 107, 107, 0.25)",
+    background: "linear-gradient(135deg, #FF6B6B 0%, #EE5A52 100%)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 20px 60px rgba(255, 107, 107, 0.4)",
+    },
   },
   card3: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
-    height: "100%",
-  //backgroundColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : theme.palette.primary.main,
-    color: "#eee",
+    height: "160px",
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : "#4ECDC4",
+    color: "#ffffff",
+    borderRadius: "24px",
+    boxShadow: "0 12px 40px rgba(78, 205, 196, 0.25)",
+    background: "linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 20px 60px rgba(78, 205, 196, 0.4)",
+    },
   },
   card4: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
-    height: "100%",
-    //backgroundColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : theme.palette.primary.main,
-    color: "#eee",
+    height: "160px",
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : "#45B7D1",
+    color: "#ffffff",
+    borderRadius: "24px",
+    boxShadow: "0 12px 40px rgba(69, 183, 209, 0.25)",
+    background: "linear-gradient(135deg, #45B7D1 0%, #3A9BC1 100%)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 20px 60px rgba(69, 183, 209, 0.4)",
+    },
   },
   card5: {
     padding: theme.spacing(2),
@@ -179,24 +219,42 @@ const useStyles = makeStyles((theme) => ({
     color: "#eee",
   },
   card8: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
-    height: "100%",
-    //backgroundColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : theme.palette.primary.main,
-    color: "#eee",
+    height: "160px",
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : "#FD79A8",
+    color: "#ffffff",
+    borderRadius: "24px",
+    boxShadow: "0 12px 40px rgba(253, 121, 168, 0.25)",
+    background: "linear-gradient(135deg, #FD79A8 0%, #E84393 100%)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 20px 60px rgba(253, 121, 168, 0.4)",
+    },
   },
   card9: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
-    height: "100%",
-    //backgroundColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : theme.palette.primary.main,
-    color: "#eee",
+    height: "160px",
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.boxticket.main : "#74B9FF",
+    color: "#ffffff",
+    borderRadius: "24px",
+    boxShadow: "0 12px 40px rgba(116, 185, 255, 0.25)",
+    background: "linear-gradient(135deg, #74B9FF 0%, #0984E3 100%)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 20px 60px rgba(116, 185, 255, 0.4)",
+    },
   },
   fixedHeightPaper2: {
     padding: theme.spacing(2),
@@ -369,33 +427,54 @@ const Dashboard = () => {
             <Paper
               className={classes.card1}
               style={{ overflow: "hidden" }}
-              elevation={4}
+              elevation={0}
             >
-              <Grid container spacing={3}>
+              <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
                   <Typography
                     component="h3"
-                    variant="h6"
-                    paragraph
+                    variant="subtitle1"
+                    style={{ 
+                      fontWeight: 600, 
+                      marginBottom: 12, 
+                      opacity: 0.95,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.5px'
+                    }}
                   >
                     {i18n.t("dashboard.counters.inTalk")}
                   </Typography>
-                  <Grid item>
-                    <Typography
-                      component="h1"
-                      variant="h4"
-                    >
-                      {counters.supportHappening}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={2}>
-                  <CallIcon
-                    style={{
-                      fontSize: 100,
-                      color: "#FFFFFF",
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    style={{ 
+                      fontWeight: 800,
+                      fontSize: '2.5rem',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
-                  />
+                  >
+                    {counters.supportHappening}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderRadius: '20px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                  }}>
+                    <PhoneInTalkIcon
+                      style={{
+                        fontSize: 40,
+                        color: "#FFFFFF",
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  </div>
                 </Grid>
               </Grid>
             </Paper>
@@ -406,33 +485,54 @@ const Dashboard = () => {
             <Paper
               className={classes.card2}
               style={{ overflow: "hidden" }}
-              elevation={6}
+              elevation={0}
             >
-              <Grid container spacing={3}>
+              <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
                   <Typography
                     component="h3"
-                    variant="h6"
-                    paragraph
+                    variant="subtitle1"
+                    style={{ 
+                      fontWeight: 600, 
+                      marginBottom: 12, 
+                      opacity: 0.95,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.5px'
+                    }}
                   >
                     {i18n.t("dashboard.counters.waiting")}
                   </Typography>
-                  <Grid item>
-                    <Typography
-                      component="h1"
-                      variant="h4"
-                    >
-                      {counters.supportPending}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={4}>
-                  <HourglassEmptyIcon
-                    style={{
-                      fontSize: 100,
-                      color: "#FFFFFF",
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    style={{ 
+                      fontWeight: 800,
+                      fontSize: '2.5rem',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
-                  />
+                  >
+                    {counters.supportPending}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderRadius: '20px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                  }}>
+                    <PauseCircleOutlineIcon
+                      style={{
+                        fontSize: 40,
+                        color: "#FFFFFF",
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  </div>
                 </Grid>
               </Grid>
             </Paper>
@@ -485,33 +585,54 @@ const Dashboard = () => {
             <Paper
               className={classes.card3}
               style={{ overflow: "hidden" }}
-              elevation={6}
+              elevation={0}
             >
-              <Grid container spacing={3}>
+              <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
                   <Typography
                     component="h3"
-                    variant="h6"
-                    paragraph
+                    variant="subtitle1"
+                    style={{ 
+                      fontWeight: 600, 
+                      marginBottom: 12, 
+                      opacity: 0.95,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.5px'
+                    }}
                   >
                     {i18n.t("dashboard.counters.finished")}
                   </Typography>
-                  <Grid item>
-                    <Typography
-                      component="h1"
-                      variant="h4"
-                    >
-                      {counters.supportFinished}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={4}>
-                  <CheckCircleIcon
-                    style={{
-                      fontSize: 100,
-                      color: "#FFFFFF",
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    style={{ 
+                      fontWeight: 800,
+                      fontSize: '2.5rem',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
-                  />
+                  >
+                    {counters.supportFinished}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderRadius: '20px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                  }}>
+                    <TaskAltIcon
+                      style={{
+                        fontSize: 40,
+                        color: "#FFFFFF",
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  </div>
                 </Grid>
               </Grid>
             </Paper>
@@ -522,33 +643,54 @@ const Dashboard = () => {
             <Paper
               className={classes.card4}
               style={{ overflow: "hidden" }}
-              elevation={6}
+              elevation={0}
             >
-              <Grid container spacing={3}>
+              <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
                   <Typography
                     component="h3"
-                    variant="h6"
-                    paragraph
+                    variant="subtitle1"
+                    style={{ 
+                      fontWeight: 600, 
+                      marginBottom: 12, 
+                      opacity: 0.95,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.5px'
+                    }}
                   >
                     {i18n.t("dashboard.counters.newContacts")}
                   </Typography>
-                  <Grid item>
-                    <Typography
-                      component="h1"
-                      variant="h4"
-                    >
-                      {GetContacts(true)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={4}>
-                  <GroupAddIcon
-                    style={{
-                      fontSize: 100,
-                      color: "#FFFFFF",
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    style={{ 
+                      fontWeight: 800,
+                      fontSize: '2.5rem',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
-                  />
+                  >
+                    {GetContacts(true)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderRadius: '20px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                  }}>
+                    <PersonAddIcon
+                      style={{
+                        fontSize: 40,
+                        color: "#FFFFFF",
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  </div>
                 </Grid>
               </Grid>
             </Paper>
@@ -560,33 +702,54 @@ const Dashboard = () => {
             <Paper
               className={classes.card8}
               style={{ overflow: "hidden" }}
-              elevation={6}
+              elevation={0}
             >
-              <Grid container spacing={3}>
+              <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
                   <Typography
                     component="h3"
-                    variant="h6"
-                    paragraph
+                    variant="subtitle1"
+                    style={{ 
+                      fontWeight: 600, 
+                      marginBottom: 12, 
+                      opacity: 0.95,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.5px'
+                    }}
                   >
                     {i18n.t("dashboard.counters.averageTalkTime")}
                   </Typography>
-                  <Grid item>
-                    <Typography
-                      component="h1"
-                      variant="h4"
-                    >
-                      {formatTime(counters.avgSupportTime)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={4}>
-                  <AccessAlarmIcon
-                    style={{
-                      fontSize: 100,
-                      color: "#FFFFFF",
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    style={{ 
+                      fontWeight: 800,
+                      fontSize: '2.5rem',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
-                  />
+                  >
+                    {formatTime(counters.avgSupportTime)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderRadius: '20px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                  }}>
+                    <AvTimerIcon
+                      style={{
+                        fontSize: 40,
+                        color: "#FFFFFF",
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  </div>
                 </Grid>
               </Grid>
             </Paper>
@@ -597,33 +760,54 @@ const Dashboard = () => {
             <Paper
               className={classes.card9}
               style={{ overflow: "hidden" }}
-              elevation={6}
+              elevation={0}
             >
-              <Grid container spacing={3}>
+              <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
                   <Typography
                     component="h3"
-                    variant="h6"
-                    paragraph
+                    variant="subtitle1"
+                    style={{ 
+                      fontWeight: 600, 
+                      marginBottom: 12, 
+                      opacity: 0.95,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.5px'
+                    }}
                   >
                     {i18n.t("dashboard.counters.averageWaitTime")}
                   </Typography>
-                  <Grid item>
-                    <Typography
-                      component="h1"
-                      variant="h4"
-                    >
-                      {formatTime(counters.avgWaitTime)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={4}>
-                  <TimerIcon
-                    style={{
-                      fontSize: 100,
-                      color: "#FFFFFF",
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    style={{ 
+                      fontWeight: 800,
+                      fontSize: '2.5rem',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
-                  />
+                  >
+                    {formatTime(counters.avgWaitTime)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderRadius: '20px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                  }}>
+                    <ScheduleIcon
+                      style={{
+                        fontSize: 40,
+                        color: "#FFFFFF",
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  </div>
                 </Grid>
               </Grid>
             </Paper>

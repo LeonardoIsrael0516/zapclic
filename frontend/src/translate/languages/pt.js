@@ -117,11 +117,11 @@ const messages = {
           helper: "Selecione o período desejado",
         },
         counters: {
-          inTalk: "Em conversa",
+          inTalk: "Em atendimento",
           waiting: "Aguardando",
           finished: "Finalizados",
           newContacts: "Novos contatos",
-          averageTalkTime: "T.M. de Conversa",
+          averageTalkTime: "T.M. de Atendimento",
           averageWaitTime: "T.M. de Espera",
         },
         buttons: {
