@@ -9,8 +9,8 @@ echo -e "${YELLOW}🎨 Atualizando nome da página...${NC}"
 
 # Verifica se a variável de ambiente está definida
 if [[ -z "$REACT_APP_TAB_NAME" ]]; then
-    echo -e "${YELLOW}⚠️  REACT_APP_TAB_NAME não definida, usando valor padrão: Atendechat${NC}"
-    TAB_NAME="Atendechat"
+    echo -e "${YELLOW}⚠️  REACT_APP_TAB_NAME não definida, usando valor padrão: ZapClic${NC}"
+    TAB_NAME="ZapClic"
 else
     TAB_NAME="$REACT_APP_TAB_NAME"
 fi

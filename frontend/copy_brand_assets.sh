@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+
+# Script para copiar assets de marca personalizados
+# Autor: ZapClicin/sh
 
 # Script para copiar assets de marca personalizados
 # Autor: Atendechat

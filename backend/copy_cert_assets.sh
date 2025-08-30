@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Script para copiar certificados personalizados
-# Autor: Atendechat
+#!/bin/bash
+
+# Script para copiar certificados SSL
+# Autor: ZapClic
 # Versão: 2.0
 
 set -e
