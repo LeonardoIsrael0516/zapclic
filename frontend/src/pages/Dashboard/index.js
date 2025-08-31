@@ -1,3 +1,4 @@
+// Dashboard ZapClic - Versão Modernizada 2025
 import React, { useContext, useState, useEffect } from "react";
 
 import Paper from "@material-ui/core/Paper";
@@ -15,13 +16,13 @@ import CallIcon from "@material-ui/icons/Call";
 import GroupAddIcon from "@material-ui/icons/GroupAdd";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
+import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import TimerIcon from '@material-ui/icons/Timer';
-import PhoneInTalkIcon from '@material-ui/icons/PhoneInTalk';
-import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
-import TaskAltIcon from '@material-ui/icons/TaskAlt';
+import PhoneIcon from '@material-ui/icons/Phone';
+import PauseIcon from '@material-ui/icons/Pause';
+import DoneIcon from '@material-ui/icons/Done';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import AvTimerIcon from '@material-ui/icons/AvTimer';
+import AlarmIcon from '@material-ui/icons/Alarm';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -426,8 +427,27 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <Paper
               className={classes.card1}
-              style={{ overflow: "hidden" }}
+              style={{ 
+                overflow: "hidden",
+                padding: '32px',
+                height: '160px',
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #1DCC91 0%, #16A085 100%)',
+                boxShadow: '0 12px 40px rgba(29, 204, 145, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#ffffff',
+                cursor: 'pointer'
+              }}
               elevation={0}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-8px) scale(1.02)';
+                e.target.style.boxShadow = '0 20px 60px rgba(29, 204, 145, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 12px 40px rgba(29, 204, 145, 0.25)';
+              }}
             >
               <Grid container spacing={2} alignItems="center">
                 <Grid item xs={8}>
@@ -467,7 +487,7 @@ const Dashboard = () => {
                     boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                     border: '1px solid rgba(255, 255, 255, 0.3)'
                   }}>
-                    <PhoneInTalkIcon
+                    <PhoneIcon
                       style={{
                         fontSize: 40,
                         color: "#FFFFFF",
@@ -484,7 +504,17 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <Paper
               className={classes.card2}
-              style={{ overflow: "hidden" }}
+              style={{ 
+                overflow: "hidden",
+                padding: '32px',
+                height: '160px',
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #FF6B6B 0%, #EE5A52 100%)',
+                boxShadow: '0 12px 40px rgba(255, 107, 107, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#ffffff'
+              }}
               elevation={0}
             >
               <Grid container spacing={2} alignItems="center">
@@ -525,7 +555,7 @@ const Dashboard = () => {
                     boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                     border: '1px solid rgba(255, 255, 255, 0.3)'
                   }}>
-                    <PauseCircleOutlineIcon
+                    <PauseIcon
                       style={{
                         fontSize: 40,
                         color: "#FFFFFF",
@@ -584,7 +614,17 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <Paper
               className={classes.card3}
-              style={{ overflow: "hidden" }}
+              style={{ 
+                overflow: "hidden",
+                padding: '32px',
+                height: '160px',
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)',
+                boxShadow: '0 12px 40px rgba(78, 205, 196, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#ffffff'
+              }}
               elevation={0}
             >
               <Grid container spacing={2} alignItems="center">
@@ -625,7 +665,7 @@ const Dashboard = () => {
                     boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                     border: '1px solid rgba(255, 255, 255, 0.3)'
                   }}>
-                    <TaskAltIcon
+                    <DoneIcon
                       style={{
                         fontSize: 40,
                         color: "#FFFFFF",
@@ -642,7 +682,17 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <Paper
               className={classes.card4}
-              style={{ overflow: "hidden" }}
+              style={{ 
+                overflow: "hidden",
+                padding: '32px',
+                height: '160px',
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #45B7D1 0%, #3A9BC1 100%)',
+                boxShadow: '0 12px 40px rgba(69, 183, 209, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#ffffff'
+              }}
               elevation={0}
             >
               <Grid container spacing={2} alignItems="center">
@@ -701,7 +751,17 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <Paper
               className={classes.card8}
-              style={{ overflow: "hidden" }}
+              style={{ 
+                overflow: "hidden",
+                padding: '32px',
+                height: '160px',
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #FD79A8 0%, #E84393 100%)',
+                boxShadow: '0 12px 40px rgba(253, 121, 168, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#ffffff'
+              }}
               elevation={0}
             >
               <Grid container spacing={2} alignItems="center">
@@ -742,7 +802,7 @@ const Dashboard = () => {
                     boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                     border: '1px solid rgba(255, 255, 255, 0.3)'
                   }}>
-                    <AvTimerIcon
+                    <AlarmIcon
                       style={{
                         fontSize: 40,
                         color: "#FFFFFF",
@@ -759,7 +819,17 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <Paper
               className={classes.card9}
-              style={{ overflow: "hidden" }}
+              style={{ 
+                overflow: "hidden",
+                padding: '32px',
+                height: '160px',
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #74B9FF 0%, #0984E3 100%)',
+                boxShadow: '0 12px 40px rgba(116, 185, 255, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#ffffff'
+              }}
               elevation={0}
             >
               <Grid container spacing={2} alignItems="center">
