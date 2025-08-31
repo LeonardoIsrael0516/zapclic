@@ -9,8 +9,24 @@ app.use(express.json({ limit: '10mb' }));
 
 // Log de todas as requisições
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  if (req.path.includes('cakto')) {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  }
   next();
+});
+
+// TESTE SIMPLES - Webhook de teste sem processamento
+app.post("/cakto/webhook/test-simple", (req, res) => {
+  console.log("=== TESTE SIMPLES WEBHOOK CAKTO ===");
+  console.log("Body:", JSON.stringify(req.body, null, 2));
+  
+  res.json({
+    success: true,
+    message: "🎉 Webhook recebido com sucesso!",
+    received_data: req.body,
+    timestamp: new Date().toISOString(),
+    note: "Este é um teste simples sem processamento"
+  });
 });
 
 // Webhook da Cakto - Processar diretamente
