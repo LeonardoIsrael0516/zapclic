@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../utils/logger";
+import Setting from "../models/Setting";
 
-export const validateCaktoWebhook = (req: Request, res: Response, next: NextFunction) => {
+export const validateCaktoWebhook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { body } = req;
 
@@ -13,19 +14,33 @@ export const validateCaktoWebhook = (req: Request, res: Response, next: NextFunc
       });
     }
 
-    // Validar o secret da Cakto (você deve configurar isso no .env)
-    const expectedSecret = process.env.CAKTO_WEBHOOK_SECRET;
-    if (!expectedSecret) {
-      logger.error("CAKTO_WEBHOOK_SECRET não configurado no .env");
-      return res.status(500).json({
-        error: "Configuração do webhook não encontrada"
-      });
+    // Buscar o token configurado no painel admin (busca na empresa 1 como padrão)
+    const caktoTokenSetting = await Setting.findOne({
+      where: { key: "caktoToken", companyId: 1 }
+    });
+
+    let expectedSecret: string;
+
+    if (caktoTokenSetting && caktoTokenSetting.value) {
+      // Usar o token configurado no painel admin
+      expectedSecret = caktoTokenSetting.value;
+      logger.info("Usando token da Cakto configurado no painel admin");
+    } else {
+      // Fallback para o .env se não estiver configurado no painel
+      expectedSecret = process.env.CAKTO_WEBHOOK_SECRET;
+      if (!expectedSecret) {
+        logger.error("Token da Cakto não configurado nem no painel admin nem no .env");
+        return res.status(500).json({
+          error: "Token da Cakto não configurado. Configure no painel admin em Configurações > Integrações > CAKTO"
+        });
+      }
+      logger.info("Usando token da Cakto do arquivo .env (configure no painel admin para melhor gerenciamento)");
     }
 
     if (body.secret !== expectedSecret) {
       logger.error("Webhook Cakto inválido - secret incorreto:", {
         received: body.secret,
-        expected: expectedSecret
+        expectedLength: expectedSecret.length
       });
       return res.status(401).json({
         error: "Secret inválido"

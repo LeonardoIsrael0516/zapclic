@@ -112,6 +112,7 @@ class CaktoIntegrationService {
   private async createDefaultSettings(companyId: number): Promise<void> {
     const defaultSettings = [
       { key: "asaas", value: "", companyId },
+      { key: "caktoToken", value: "", companyId },
       { key: "userCreation", value: "enabled", companyId },
       { key: "call", value: "disabled", companyId },
       { key: "sideMenu", value: "enabled", companyId },

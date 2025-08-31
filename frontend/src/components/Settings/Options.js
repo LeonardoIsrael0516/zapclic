@@ -109,6 +109,9 @@ export default function Options(props) {
   const [asaasType, setAsaasType] = useState("");
   const [loadingAsaasType, setLoadingAsaasType] = useState(false);
   
+  const [caktoTokenType, setCaktoTokenType] = useState("");
+  const [loadingCaktoTokenType, setLoadingCaktoTokenType] = useState(false);
+  
   // recursos a mais da plw design
 
   const [SendGreetingAccepted, setSendGreetingAccepted] = useState("disabled");
@@ -193,6 +196,11 @@ export default function Options(props) {
       const asaasType = settings.find((s) => s.key === "asaas");
       if (asaasType) {
         setAsaasType(asaasType.value);
+      }
+
+      const caktoTokenType = settings.find((s) => s.key === "caktoToken");
+      if (caktoTokenType) {
+        setCaktoTokenType(caktoTokenType.value);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -370,6 +378,17 @@ export default function Options(props) {
     });
     toast.success(i18n.t("settings.options.toasts.success"));
     setLoadingAsaasType(false);
+  }
+
+  async function handleChangeCaktoToken(value) {
+    setCaktoTokenType(value);
+    setLoadingCaktoTokenType(true);
+    await update({
+      key: "caktoToken",
+      value,
+    });
+    toast.success(i18n.t("settings.options.toasts.success"));
+    setLoadingCaktoTokenType(false);
   }
   return (
     <>
@@ -718,6 +737,40 @@ export default function Options(props) {
             </TextField>
             <FormHelperText>
               {loadingAsaasType && i18n.t("settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid>
+      </Grid>
+      {/*-----------------CAKTO-----------------*/}
+      <Grid spacing={3} container
+        style={{ marginBottom: 10 }}>
+        <Tabs
+          indicatorColor="primary"
+          textColor="primary"
+          scrollButtons="on"
+          variant="scrollable"
+          className={classes.tab}
+        >
+          <Tab label="CAKTO" />
+
+        </Tabs>
+        <Grid xs={12} sm={12} md={12} item>
+          <FormControl className={classes.selectContainer}>
+            <TextField
+              id="caktoToken"
+              name="caktoToken"
+              margin="dense"
+              label="Token de Integração Cakto"
+              variant="outlined"
+              value={caktoTokenType}
+              onChange={async (e) => {
+                handleChangeCaktoToken(e.target.value);
+              }}
+              placeholder="Insira o token de integração da Cakto"
+            >
+            </TextField>
+            <FormHelperText>
+              {loadingCaktoTokenType && i18n.t("settings.options.updating")}
             </FormHelperText>
           </FormControl>
         </Grid>
