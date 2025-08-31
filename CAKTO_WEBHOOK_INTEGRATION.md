@@ -43,11 +43,12 @@ GET /cakto/webhook/test
 
 ### Para testar SEM validação de secret (desenvolvimento):
 ```bash
-curl -X POST http://seu-servidor/cakto/webhook/test \
+# Via frontend (proxy)
+curl -X POST https://zap.meulink.lat/cakto/webhook/test \
   -H "Content-Type: application/json" \
   -d '{
     "data": {
-      "amount": 29.90,
+      "amount": 90,
       "customer": {
         "name": "Teste Usuario",
         "email": "teste@email.com",
@@ -56,19 +57,27 @@ curl -X POST http://seu-servidor/cakto/webhook/test \
       "offer": {
         "name": "Plano Teste"
       },
-      "status": "paid"
+      "status": "waiting_payment",
+      "id": "test-123",
+      "paidAt": "2024-09-18T23:12:59.347605+00:00"
     },
     "event": "purchase_approved"
   }'
+
+# Direto no backend (se disponível)
+curl -X POST https://apizap.meulink.lat/cakto/webhook/test \
+  -H "Content-Type: application/json" \
+  -d '{...}'
 ```
 
 ### Para testar COM validação de secret (produção):
 ```bash
-curl -X POST http://seu-servidor/cakto/webhook \
+# Via frontend (proxy)
+curl -X POST https://zap.meulink.lat/cakto/webhook \
   -H "Content-Type: application/json" \
   -d '{
     "data": {
-      "amount": 29.90,
+      "amount": 90,
       "customer": {
         "name": "Teste Usuario",
         "email": "teste@email.com",
@@ -77,19 +86,74 @@ curl -X POST http://seu-servidor/cakto/webhook \
       "offer": {
         "name": "Plano Teste"
       },
-      "status": "paid"
+      "status": "paid",
+      "id": "test-123",
+      "paidAt": "2024-09-18T23:12:59.347605+00:00"
     },
     "event": "purchase_approved",
-    "secret": "seu_secret_da_cakto_aqui"
+    "secret": "2e0e5cdd-8af3-4da5-b0de-3887dd5ed4c6"
   }'
+```
+
+### Verificar se está funcionando:
+```bash
+curl https://zap.meulink.lat/cakto/webhook/test
 ```
 
 ## 🔧 Configuração na Cakto
 
 1. Acesse o painel da Cakto
 2. Vá em **Configurações > Webhooks**
-3. Configure a URL do webhook como: `https://seu-dominio.com/cakto/webhook`
-4. Copie o secret gerado e coloque no `.env` como `CAKTO_WEBHOOK_SECRET`
+3. Configure a URL do webhook como: `https://zap.meulink.lat/cakto/webhook`
+4. Copie o secret gerado e coloque no `.env` do backend como `CAKTO_WEBHOOK_SECRET`
+
+## 🛠️ Arquitetura da Solução
+
+### Opção 1: Via Frontend (Proxy) - **RECOMENDADA**
+```
+Cakto → zap.meulink.lat/cakto/webhook → apizap.meulink.lat/cakto/webhook → Banco de Dados
+```
+
+### Opção 2: Direto no Backend
+```
+Cakto → apizap.meulink.lat/cakto/webhook → Banco de Dados
+```
+
+**URLs para usar na Cakto:**
+- **Produção**: `https://zap.meulink.lat/cakto/webhook`
+- **Teste**: `https://zap.meulink.lat/cakto/webhook/test`
+
+## 🧪 Testes para Validar
+
+### 1. Verificar se está funcionando:
+```bash
+curl https://zap.meulink.lat/cakto/webhook/test
+```
+
+### 2. Testar processamento completo:
+```bash
+curl -X POST https://zap.meulink.lat/cakto/webhook/test \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": {
+      "id": "test-123",
+      "amount": 90,
+      "status": "waiting_payment",
+      "paidAt": "2024-09-18T23:12:59.347605+00:00",
+      "customer": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "phone": "34999999999",
+        "docType": "cpf",
+        "docNumber": "12345678909"
+      },
+      "offer": {
+        "name": "Plano Teste"
+      }
+    },
+    "event": "purchase_approved"
+  }'
+```
 
 ## Como Funciona
 

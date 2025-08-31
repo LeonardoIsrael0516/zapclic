@@ -40,6 +40,7 @@ import ForgetPassword from "../pages/ForgetPassWord/"; // Reset PassWd
 import CampaignsPhrase from "../pages/CampaignsPhrase";
 import FlowBuilder from "../pages/FlowBuilder";
 import FlowBuilderConfig from "../pages/FlowBuilderConfig";
+import CaktoWebhook from "../pages/CaktoWebhook";
 
 const Routes = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
@@ -59,6 +60,8 @@ const Routes = () => {
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <Route exact path="/forgetpsw" component={ForgetPassword} />
+            <Route exact path="/cakto/webhook" component={CaktoWebhook} />
+            <Route exact path="/cakto/webhook/test" component={CaktoWebhook} />
             {/* <Route exact path="/create-company" component={Companies} /> */}
             <WhatsAppsProvider>
               <LoggedInLayout>
