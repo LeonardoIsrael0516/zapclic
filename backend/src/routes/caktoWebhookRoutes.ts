@@ -7,6 +7,9 @@ const caktoWebhookRoutes = express.Router();
 // Rota para receber webhooks da Cakto (COM validação de secret)
 caktoWebhookRoutes.post("/cakto/webhook", validateCaktoWebhook, CaktoWebhookController.processWebhook);
 
+// Rota GET para verificação inicial do webhook (algumas plataformas testam com GET)
+caktoWebhookRoutes.get("/cakto/webhook", CaktoWebhookController.testWebhook);
+
 // Rota para testar o webhook (SEM validação de secret - apenas para testes)
 caktoWebhookRoutes.post("/cakto/webhook/test", CaktoWebhookController.processWebhook);
 
