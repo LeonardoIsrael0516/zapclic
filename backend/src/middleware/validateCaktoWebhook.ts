@@ -4,6 +4,11 @@ import Setting from "../models/Setting";
 
 export const validateCaktoWebhook = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    logger.info("=== INICIANDO VALIDAÇÃO WEBHOOK CAKTO ===");
+    logger.info("URL:", req.url);
+    logger.info("Method:", req.method);
+    logger.info("Body:", JSON.stringify(req.body, null, 2));
+
     const { body } = req;
 
     // Verificar se o payload contém os campos obrigatórios
@@ -13,6 +18,8 @@ export const validateCaktoWebhook = async (req: Request, res: Response, next: Ne
         error: "Payload inválido - campos obrigatórios ausentes"
       });
     }
+
+    logger.info("Secret recebido:", body.secret);
 
     // Buscar o token configurado no painel admin (busca na empresa 1 como padrão)
     const caktoTokenSetting = await Setting.findOne({
@@ -36,6 +43,9 @@ export const validateCaktoWebhook = async (req: Request, res: Response, next: Ne
       }
       logger.info("Usando token da Cakto do arquivo .env (configure no painel admin para melhor gerenciamento)");
     }
+
+    logger.info("Token esperado:", expectedSecret);
+    logger.info("Tokens são iguais?", body.secret === expectedSecret);
 
     if (body.secret !== expectedSecret) {
       logger.error("Webhook Cakto inválido - secret incorreto:", {
