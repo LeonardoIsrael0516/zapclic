@@ -28,10 +28,34 @@
   }
 
   .react-flow__edge-path{
-    stroke-width: 6px;
+    stroke: #2563EB;
+    stroke-width: 1px;
+    stroke-dasharray: 8 4;
+    animation: dash-flow 2s linear infinite;
   }
 
   .react-flow__edge.selected .react-flow__edge-path{
-    stroke: #0000FF
+    stroke: #2563EB;
+    stroke-width: 1.5px;
+    stroke-dasharray: 10 5;
+    animation: dash-flow-selected 1.5s linear infinite;
+  }
+
+  @keyframes dash-flow {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 12;
+    }
+  }
+
+  @keyframes dash-flow-selected {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 15;
+    }
   }
   

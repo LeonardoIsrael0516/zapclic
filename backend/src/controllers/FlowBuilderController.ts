@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { FlowBuilderModel } from "../models/FlowBuilder";
 import ListFlowBuilderService from "../services/FlowBuilderService/ListFlowBuilderService";
 import CreateFlowBuilderService from "../services/FlowBuilderService/CreateFlowBuilderService";
 import UpdateFlowBuilderService from "../services/FlowBuilderService/UpdateFlowBuilderService";
@@ -103,10 +104,6 @@ export const FlowDataUpdate = async (
 
   const { companyId } = req.user;
 
-  const keys = Object.keys(bodyData);
-
-  console.log(keys);
-
   const webhook = await FlowUpdateDataService({
     companyId,
     bodyData
@@ -203,4 +200,56 @@ export const FlowUploadAll = async (req: Request, res: Response) => {
     companyId
   });
   return res.status(200).json(items);
+};
+
+export const saveFlowConfig = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { flowId } = req.params;
+  const { config } = req.body;
+  const companyId = req.user.companyId;
+
+  try {
+    const flow = await FlowBuilderModel.findOne({
+      where: {
+        id: flowId,
+        company_id: companyId
+      }
+    });
+
+    if (!flow) {
+      return res.status(404).json({ error: "Flow not found" });
+    }
+
+    await flow.update({ config });
+    return res.status(200).json({ message: "Config saved successfully", config });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getFlowConfig = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { flowId } = req.params;
+  const companyId = req.user.companyId;
+
+  try {
+    const flow = await FlowBuilderModel.findOne({
+      where: {
+        id: flowId,
+        company_id: companyId
+      }
+    });
+
+    if (!flow) {
+      return res.status(404).json({ error: "Flow not found" });
+    }
+
+    return res.status(200).json({ config: flow.config || {} });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };

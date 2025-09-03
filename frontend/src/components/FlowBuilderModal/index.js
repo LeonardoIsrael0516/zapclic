@@ -113,7 +113,7 @@ const FlowBuilderModal = ({
 
   return (
     <div className={classes.root}>
-      <Dialog open={open} onClose={handleClose} fullWidth="md" scroll="paper">
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth={true} scroll="paper">
         <DialogTitle id="form-dialog-title">
           {flowId ? `Editar Fluxo` : `Adicionar Fluxo`}
         </DialogTitle>

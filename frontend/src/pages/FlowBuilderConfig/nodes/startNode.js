@@ -7,57 +7,83 @@ export default memo(({ data, isConnectable }) => {
   return (
     <div
       style={{
-        backgroundColor: "#F9FDF9",
-        padding: "8px",
-        borderRadius: "8px",
-        boxShadow: "rgba(0, 0, 0, 0.05) 0px 3px 5px",
-        border: '1px solid rgba(58, 186, 56, 0.25)'
+        backgroundColor: "#ffffff",
+        padding: "16px",
+        borderRadius: "16px",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04)",
+        border: "none",
+        position: "relative",
+        minWidth: "200px",
+        transition: "all 0.3s ease",
+        cursor: "pointer"
       }}
     >
       <div
         style={{
-          color: "#ededed",
-          fontSize: "16px",
+          color: "#1a1a1a",
+          fontSize: "18px",
+          fontWeight: "600",
           flexDirection: "row",
-          display: "flex"
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "8px"
         }}
       >
-        <RocketLaunch
-          sx={{
-            width: "16px",
-            height: "16px",
-            marginRight: "4px",
-            marginTop: "4px",
-            color: "#3aba38"
+        <div
+          style={{
+            background: "linear-gradient(135deg, #32F08C 0%, #00D4AA 100%)",
+            borderRadius: "50%",
+            padding: "8px",
+            marginRight: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 4px 12px rgba(50, 240, 140, 0.25)"
           }}
-        />
-        <div style={{ color: "#232323", fontSize: "16px" }}>
-          Inicio do fluxo
+        >
+          <RocketLaunch
+            sx={{
+              width: "20px",
+              height: "20px",
+              color: "#ffffff"
+            }}
+          />
+        </div>
+        <div style={{ color: "#1a1a1a", fontSize: "18px", fontWeight: "600" }}>
+          Início do fluxo
         </div>
       </div>
-      <div style={{ color: "#727272", fontSize: "12px" }}>
-        Este bloco marca o inicio do seu fluxo!
+      <div style={{ 
+        color: "#666666", 
+        fontSize: "13px",
+        lineHeight: "1.4",
+        fontWeight: "400"
+      }}>
+        Este bloco marca o início do seu fluxo automático!
       </div>
       <Handle
         type="source"
         position="right"
         id="a"
         style={{
-          background: "#0000FF",
-          width: "18px",
-          height: "18px",
-          top: "70%",
-          right: "-11px",
-          cursor: 'pointer'
+          background: "linear-gradient(135deg, #32F08C 0%, #00D4AA 100%)",
+          width: "22px",
+          height: "22px",
+          top: "50%",
+          right: "-13px",
+          cursor: 'pointer',
+          border: "3px solid #ffffff",
+          boxShadow: "0 4px 12px rgba(50, 240, 140, 0.4)",
+          transition: "all 0.3s ease"
         }}
         isConnectable={isConnectable}
       >
         <ArrowForwardIos
           sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
+            color: "#ffffff",
+            width: "12px",
+            height: "12px",
+            marginLeft: "3px",
             marginBottom: "1px",
             pointerEvents: 'none'
           }}

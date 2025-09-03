@@ -18,37 +18,30 @@ export default memo(({ data, isConnectable, id }) => {
     <div
       style={{
         backgroundColor: "#ffffff",
-        padding: "8px",
-        borderRadius: "8px",
-        boxShadow: "rgba(0, 0, 0, 0.05) 0px 3px 5px",
-        border: "1px solid rgba(33, 94, 151, 0.25)",
+        padding: "16px",
+        borderRadius: "12px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        border: "1px solid #e5e7eb",
+        minWidth: "200px",
+        position: "relative"
       }}
     >
       <Handle
         type="target"
         position="left"
         style={{
-          background: "#0872b9",
-          width: "18px",
-          height: "18px",
-          top: "20px",
-          left: "-12px",
-          cursor: "pointer",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          width: "12px",
+          height: "12px",
+          top: "24px",
+          left: "-6px",
+          border: "2px solid #ffffff",
+          borderRadius: "50%",
+          cursor: "pointer"
         }}
         onConnect={(params) => console.log("handle onConnect", params)}
         isConnectable={isConnectable}
-      >
-        <ArrowForwardIos
-          sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
-            marginBottom: "1px",
-            pointerEvents: "none",
-          }}
-        />
-      </Handle>
+      />
       <div
         style={{
           display: "flex",
@@ -64,7 +57,13 @@ export default memo(({ data, isConnectable, id }) => {
             storageItems.setNodesStorage(id);
             storageItems.setAct("duplicate");
           }}
-          sx={{ width: "12px", height: "12px", color: "#F7953B" }}
+          sx={{
+            width: "16px",
+            height: "16px",
+            color: "#6b7280",
+            cursor: "pointer",
+            "&:hover": { color: "#374151" }
+          }}
         />
 
         <Delete
@@ -72,38 +71,63 @@ export default memo(({ data, isConnectable, id }) => {
             storageItems.setNodesStorage(id);
             storageItems.setAct("delete");
           }}
-          sx={{ width: "12px", height: "12px", color: "#F7953B" }}
+          sx={{
+            width: "16px",
+            height: "16px",
+            color: "#ef4444",
+            cursor: "pointer",
+            "&:hover": { color: "#dc2626" }
+          }}
         />
       </div>
       <div
         style={{
-          color: "#ededed",
-          fontSize: "16px",
-          flexDirection: "row",
           display: "flex",
+          alignItems: "center",
+          marginBottom: "12px"
         }}
       >
-       <SiOpenai
-          sx={{
-            width: "16px",
-            height: "16px",
-            marginRight: "4px",
-            marginTop: "4px",
-            color: "#3aba38"
-          }}
-        />
-        <div style={{ color: "#232323", fontSize: "16px" }}>OpenAI</div>
-      </div>
-      <div style={{ color: "#232323", fontSize: "12px", width: 180 }}>
         <div
           style={{
-            backgroundColor: "#F6EEEE",
-            marginBottom: "3px",
-            borderRadius: "5px",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            borderRadius: "8px",
+            padding: "8px",
+            marginRight: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
           }}
         >
-          <div style={{ gap: "5px", padding: "6px" }}>
-            <div style={{ textAlign: "center" }}>OpenAI</div>
+          <SiOpenai
+            style={{
+              width: "16px",
+              height: "16px",
+              color: "#ffffff"
+            }}
+          />
+        </div>
+        <div
+          style={{
+            color: "#1f2937",
+            fontSize: "16px",
+            fontWeight: "600",
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+          }}
+        >
+          OpenAI
+        </div>
+      </div>
+      <div style={{ color: "#374151", fontSize: "12px", width: 180, marginBottom: "12px" }}>
+        <div
+          style={{
+            backgroundColor: "#f9fafb",
+            marginBottom: "8px",
+            borderRadius: "8px",
+            border: "1px solid #e5e7eb"
+          }}
+        >
+          <div style={{ gap: "5px", padding: "8px" }}>
+            <div style={{ textAlign: "center", fontWeight: "500" }}>OpenAI</div>
           </div>
         </div>
       </div>
@@ -112,23 +136,26 @@ export default memo(({ data, isConnectable, id }) => {
         position="right"
         id="a"
         style={{
-          background: "#0872b9",
-          width: "18px",
-          height: "18px",
-          top: "70%",
-          right: "-11px",
-          cursor: "pointer",
+          background: "linear-gradient(135deg, #32F08C 0%, #00D4AA 100%)",
+          width: "22px",
+          height: "22px",
+          top: "50%",
+          right: "-13px",
+          cursor: 'pointer',
+          border: "3px solid #ffffff",
+          boxShadow: "0 4px 12px rgba(50, 240, 140, 0.4)",
+          transition: "all 0.3s ease"
         }}
         isConnectable={isConnectable}
       >
         <ArrowForwardIos
           sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
+            color: "#ffffff",
+            width: "12px",
+            height: "12px",
+            marginLeft: "3px",
             marginBottom: "1px",
-            pointerEvents: "none",
+            pointerEvents: 'none'
           }}
         />
       </Handle>

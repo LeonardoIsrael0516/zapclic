@@ -27,11 +27,16 @@ const GetFlowBuilderService = async ({
         });
         let flow = rows[0]
 
+        if (!flow) {
+          throw new Error(`Fluxo com ID ${idFlow} não encontrado para a empresa ${companyId}`);
+        }
+
         return {
             flow: flow
         }
       } catch (error) {
         console.error('Erro ao consultar usuários:', error);
+        throw error;
       }
 };
 

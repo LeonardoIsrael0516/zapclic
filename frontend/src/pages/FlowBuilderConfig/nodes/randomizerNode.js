@@ -16,38 +16,32 @@ export default memo(({ data, isConnectable, id }) => {
   return (
     <div
       style={{
-        backgroundColor: "#F8FCFD",
-        padding: "8px",
-        borderRadius: "8px",
-        width: "185px",
-        border: "1px solid rgba(31, 186, 220, 0.25)"
+        backgroundColor: "white",
+        padding: "16px",
+        borderRadius: "16px",
+        width: "200px",
+        border: 'none',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+        position: 'relative',
+        transition: 'all 0.2s ease-in-out'
       }}
     >
       <Handle
         type="target"
         position="left"
         style={{
-          background: "#0000FF",
-          width: "18px",
-          height: "18px",
-          top: "20px",
-          left: "-12px",
-          cursor: 'pointer'
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          width: "12px",
+          height: "12px",
+          top: "24px",
+          left: "-6px",
+          border: "2px solid #ffffff",
+          borderRadius: "50%",
+          cursor: "pointer"
         }}
         onConnect={params => console.log("handle onConnect", params)}
         isConnectable={isConnectable}
-      >
-        <ArrowForwardIos
-          sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "3.5px",
-            marginBottom: "1px",
-            pointerEvents: "none"
-          }}
-        />
-      </Handle>
+      />
       <div
         style={{
           display: "flex",
@@ -63,7 +57,17 @@ export default memo(({ data, isConnectable, id }) => {
             storageItems.setNodesStorage(id);
             storageItems.setAct("duplicate");
           }}
-          sx={{ width: "12px", height: "12px", color: "#1FBADC" }}
+          sx={{ 
+            width: "16px", 
+            height: "16px", 
+            color: "#64748b",
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              color: '#4ade80',
+              transform: 'scale(1.1)'
+            }
+          }}
         />
 
         <Delete
@@ -71,102 +75,137 @@ export default memo(({ data, isConnectable, id }) => {
             storageItems.setNodesStorage(id);
             storageItems.setAct("delete");
           }}
-          sx={{ width: "12px", height: "12px", color: "#1FBADC" }}
-        />
-      </div>
-      <div
-        style={{
-          color: "#ededed",
-          fontSize: "16px",
-          flexDirection: "row",
-          display: "flex"
-        }}
-      >
-        <CallSplit
-          sx={{
-            width: "16px",
-            height: "16px",
-            marginRight: "4px",
-            marginTop: "4px",
-            color: "#1FBADC"
+          sx={{ 
+            width: "16px", 
+            height: "16px", 
+            color: "#64748b",
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              color: '#ef4444',
+              transform: 'scale(1.1)'
+            }
           }}
         />
-        <div style={{ color: "#232323", fontSize: "16px" }}>Randomizador</div>
       </div>
       <div
         style={{
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          fontSize: "16px",
-          justifyContent: "end",
-          position: "relative",
           display: "flex",
-          color: "#232323"
+          alignItems: "center",
+          marginBottom: "12px"
         }}
       >
-        {`${data.percent}%`}
+        <div
+          style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "50%",
+            background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: "12px",
+            boxShadow: '0 4px 12px rgba(6, 182, 212, 0.3)'
+          }}
+        >
+          <CallSplit
+            sx={{
+              width: "18px",
+              height: "18px",
+              color: "white"
+            }}
+          />
+        </div>
+        <div style={{ 
+          color: "#1f2937", 
+          fontSize: "18px", 
+          fontWeight: "600",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        }}>Randomizador</div>
+      </div>
+      <div
+        style={{
+          marginLeft: "44px",
+          marginBottom: "8px"
+        }}
+      >
+        <div style={{ 
+          color: "#64748b", 
+          fontSize: "14px",
+          fontWeight: "600",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          textAlign: "right"
+        }}>
+          {`${data.percent}%`}
+        </div>
       </div>
       <Handle
         type="source"
         position="right"
         id="a"
         style={{
-          background: "#0000FF",
-          width: "18px",
-          height: "18px",
-          right: "-11px",
-          marginTop: "-5px",
-          cursor: 'pointer'
+          background: "linear-gradient(135deg, #32F08C 0%, #00D4AA 100%)",
+          width: "22px",
+          height: "22px",
+          right: "-13px",
+          top: "50px",
+          cursor: 'pointer',
+          border: "3px solid #ffffff",
+          boxShadow: "0 4px 12px rgba(50, 240, 140, 0.4)",
+          transition: "all 0.3s ease"
         }}
         isConnectable={isConnectable}
       >
         <ArrowForwardIos
           sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
+            color: "#ffffff",
+            width: "12px",
+            height: "12px",
+            marginLeft: "3px",
             marginBottom: "1px",
-            pointerEvents: "none"
+            pointerEvents: 'none'
           }}
         />
       </Handle>
       <div
         style={{
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          fontSize: "16px",
-          justifyContent: "end",
-          position: "relative",
-          display: "flex",
-          marginTop: "8px",
-          color: "#232323"
+          marginLeft: "44px",
+          marginBottom: "8px"
         }}
       >
-        {`${100 - data.percent}%`}
+        <div style={{ 
+          color: "#64748b", 
+          fontSize: "14px",
+          fontWeight: "600",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          textAlign: "right"
+        }}>
+          {`${100 - data.percent}%`}
+        </div>
       </div>
       <Handle
         type="source"
         position="right"
         id="b"
         style={{
-          background: "#0000FF",
-          width: "18px",
-          height: "18px",
-          right: "-11px",
-          top: 73,
-          cursor: 'pointer'
+          background: "linear-gradient(135deg, #32F08C 0%, #00D4AA 100%)",
+          width: "22px",
+          height: "22px",
+          right: "-13px",
+          top: "90px",
+          cursor: 'pointer',
+          border: "3px solid #ffffff",
+          boxShadow: "0 4px 12px rgba(50, 240, 140, 0.4)",
+          transition: "all 0.3s ease"
         }}
         isConnectable={isConnectable}
       >
         <ArrowForwardIos
           sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
+            color: "#ffffff",
+            width: "12px",
+            height: "12px",
+            marginLeft: "4px",
             marginBottom: "1px",
             pointerEvents: "none"
           }}

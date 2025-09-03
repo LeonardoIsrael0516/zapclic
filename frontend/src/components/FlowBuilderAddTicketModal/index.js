@@ -127,7 +127,7 @@ const FlowBuilderTicketModal = ({
 
     return (
         <div className={classes.root}>
-            <Dialog open={activeModal} onClose={handleClose} fullWidth="md" scroll="paper">
+            <Dialog open={activeModal} onClose={handleClose} maxWidth="md" fullWidth={true} scroll="paper">
                 <DialogTitle id="form-dialog-title">
                     {open === 'create' ? `Adicionar um intervalo ao fluxo` : `Editar intervalo`}
                 </DialogTitle>

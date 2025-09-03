@@ -159,7 +159,8 @@ const FlowBuilderConditionModal = ({ open, onSave, onUpdate, data, close }) => {
       <Dialog
         open={activeModal}
         onClose={handleClose}
-        fullWidth="md"
+        maxWidth="md"
+        fullWidth={true}
         scroll="paper"
       >
         <DialogTitle id="form-dialog-title">{labels.title}</DialogTitle>

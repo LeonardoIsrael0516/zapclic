@@ -956,15 +956,15 @@ const FlowBuilderConfig = () => {
                 }}
                 style={{
                   textTransform: 'none',
-                  background: '#32F08C',
-                  color: 'black',
+                  background: 'linear-gradient(135deg, #25CA89 0%, #1665AF 100%)',
+                  color: 'white',
                   fontWeight: '800',
                   borderRadius: '20px',
                   padding: '20px 40px',
                   fontSize: '0.9rem',
                   letterSpacing: '0.5px',
                   border: 'none',
-                  boxShadow: '0 8px 32px rgba(50, 240, 140, 0.4), 0 4px 16px rgba(50, 240, 140, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 8px 32px rgba(37, 202, 137, 0.4), 0 4px 16px rgba(22, 101, 175, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.3)',
                   position: 'relative',
                   overflow: 'hidden',
                   transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
@@ -984,16 +984,16 @@ const FlowBuilderConfig = () => {
                     transition: 'opacity 0.3s ease'
                   },
                   '&:hover': {
-                    background: '#2dd67a',
+                    background: 'linear-gradient(135deg, #1e9c6a 0%, #0f4c75 100%)',
                     transform: 'translateY(-4px) scale(1.05)',
-                    boxShadow: '0 16px 48px rgba(50, 240, 140, 0.6), 0 8px 24px rgba(45, 214, 122, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.4)',
+                    boxShadow: '0 16px 48px rgba(37, 202, 137, 0.6), 0 8px 24px rgba(22, 101, 175, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.4)',
                     '&::before': {
                       opacity: 1
                     }
                   },
                   '&:active': {
                     transform: 'translateY(-2px) scale(1.02)',
-                    boxShadow: '0 8px 24px rgba(50, 240, 140, 0.5), 0 4px 12px rgba(45, 214, 122, 0.3)'
+                    boxShadow: '0 8px 24px rgba(37, 202, 137, 0.5), 0 4px 12px rgba(22, 101, 175, 0.3)'
                   }
                 }}
               >

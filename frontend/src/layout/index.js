@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
       height: "calc(100vh - 56px)",
     },
     backgroundColor: theme.palette.fancyBackground,
-    '& .MuiButton-outlinedPrimary': {
+    '& .MuiButton-outlinedPrimary:not([style*="background"])': {
       color: theme.mode === 'light' ? '#FFF' : '#FFF',
 	  //backgroundColor: theme.mode === 'light' ? '#682ee2' : '#682ee2',
 	backgroundColor: theme.mode === 'light' ? theme.palette.primary.main : '#1c1c1c',
@@ -416,15 +416,15 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           </Typography>
           
           <div>
-            <IconButton edge="start">
-              <LanguageOutlined
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handlemenuLanguage}
-                variant="contained"
-                style={{ color: "white",marginRight:10 }}
-              />
+            <IconButton 
+              edge="start"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handlemenuLanguage}
+              style={{ color: "white", marginRight: 10 }}
+            >
+              <LanguageOutlined />
             </IconButton>
             <Menu
               id="menu-appbar-language"

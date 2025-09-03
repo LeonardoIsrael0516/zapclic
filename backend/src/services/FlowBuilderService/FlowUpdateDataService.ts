@@ -16,7 +16,7 @@ interface node {
 }
 
 interface body {
-    nodes : node
+    nodes : node[]
     idFlow: number
     connections: any
 }
@@ -32,7 +32,6 @@ const FlowUpdateDataService = async ({
   bodyData
 }: Request): Promise<String> => {
   try {
-
     const flow = await FlowBuilderModel.update({ 
         flow: {
             nodes: bodyData.nodes,
@@ -44,7 +43,7 @@ const FlowUpdateDataService = async ({
 
     return 'ok';
   } catch (error) {
-    console.error("Erro ao inserir o usuário:", error);
+    console.error("Erro ao salvar fluxo:", error);
 
     return error
   }

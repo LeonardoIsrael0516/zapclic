@@ -114,7 +114,8 @@ const FlowBuilderRandomizerModal = ({
       <Dialog
         open={activeModal}
         onClose={handleClose}
-        fullWidth="md"
+        maxWidth="md"
+        fullWidth={true}
         scroll="paper"
       >
         <DialogTitle id="form-dialog-title">

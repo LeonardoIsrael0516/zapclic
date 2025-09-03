@@ -8,11 +8,6 @@ import {
 import "./css/buttonedge.css";
 import { Delete } from "@mui/icons-material";
 
-const onEdgeClick = (evt, id) => {
-  evt.stopPropagation();
-  //removeEdgeList(id);
-};
-
 export default function removeEdge({
   id,
   sourceX,
@@ -62,12 +57,17 @@ export default function removeEdge({
         requiredExtensions="http://www.w3.org/1999/xhtml"
       >
         <body>
-          {/* <button
+          <button
             className="edgebutton"
-            onClick={event => onEdgeClick(event, id)}
+            onClick={event => {
+              event.stopPropagation();
+              if (data && data.onDelete) {
+                data.onDelete(id);
+              }
+            }}
           >
-            <Delete sx={{ width: "12px", height: "12px", color: "#0000FF" }} />
-          </button> */}
+            <Delete sx={{ width: "12px", height: "12px", color: "#ff4444" }} />
+          </button>
         </body>
       </foreignObject>
     </>
