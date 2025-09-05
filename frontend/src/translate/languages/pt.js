@@ -771,6 +771,7 @@ const messages = {
           open: { title: "Abertas" },
           closed: { title: "Resolvidos" },
           search: { title: "Busca" },
+          chatbot: { title: "Chatbot" },
         },
         search: {
           placeholder: "Buscar atendimento e mensagens",

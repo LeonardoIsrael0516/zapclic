@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Modal Debug</title>
+</head>
+<body>
+    <h1>Teste de Debug do Modal</h1>
+    <p>Para testar o modal de configurações:</p>
+    <ol>
+        <li>Abra o navegador em http://localhost:3000</li>
+        <li>Faça login na aplicação</li>
+        <li>Vá para a página de FlowBuilder</li>
+        <li>Clique no ícone de configurações de um fluxo</li>
+        <li>Abra o console do navegador (F12)</li>
+        <li>Verifique os logs que começam com:</li>
+        <ul>
+            <li>"handleOpenConfigModal called with:"</li>
+            <li>"FlowConfigModal props:"</li>
+            <li>"FlowConfigModal: Rendering main dialog with flowId:"</li>
+        </ul>
+    </ol>
+    
+    <h2>Possíveis problemas a verificar:</h2>
+    <ul>
+        <li>Se flowId está undefined ou null</li>
+        <li>Se o objeto flow está sendo passado corretamente</li>
+        <li>Se há erros de JavaScript no console</li>
+        <li>Se o modal está sendo renderizado mas com conteúdo vazio</li>
+    </ul>
+</body>
+</html>

@@ -39,6 +39,7 @@ import {
 
 import FlowBuilderModal from "../../components/FlowBuilderModal";
 import FlowConfigModal from "../../components/FlowConfigModal";
+import TestModal from "../../components/TestModal";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -94,17 +95,16 @@ const useStyles = makeStyles((theme) => ({
     background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
   },
   flowCard: {
-    borderRadius: 32,
+    borderRadius: 28,
     background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
     border: "1px solid #e8f4fd",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04)",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     cursor: "pointer",
     position: "relative",
     overflow: "hidden",
     "&:hover": {
-      transform: "translateY(-6px)",
-      boxShadow: "0 12px 40px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.06)",
+      transform: "translateY(-8px)",
+      boxShadow: "0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08)",
       borderColor: "#667eea",
       "& $flowCardGradient": {
         opacity: 1,
@@ -125,14 +125,14 @@ const useStyles = makeStyles((theme) => ({
   flowIcon: {
     backgroundColor: "#1dcc91",
     color: "white",
-    borderRadius: 12,
+    borderRadius: 20,
     padding: theme.spacing(1),
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     width: 48,
     height: 48,
-    boxShadow: "0 4px 12px rgba(29, 204, 145, 0.3)",
+    boxShadow: "0 6px 16px rgba(29, 204, 145, 0.35)",
   },
   statusChip: {
     fontWeight: 600,
@@ -181,6 +181,12 @@ const FlowBuilder = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmDuplicateOpen, setConfirmDuplicateOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);
+  const [selectedFlowForConfig, setSelectedFlowForConfig] = useState(null);
+
+  // Debug: Monitor modal state changes
+  useEffect(() => {
+    console.log('Modal state changed:', { configModalOpen, selectedFlowForConfig });
+  }, [configModalOpen, selectedFlowForConfig]);
   const [editingFlow, setEditingFlow] = useState(null);
   const [editingName, setEditingName] = useState("");
   const [importingFlow, setImportingFlow] = useState(false);
@@ -377,7 +383,16 @@ const FlowBuilder = () => {
     input.click();
   };
 
-  const handleOpenConfigModal = () => {
+  const handleOpenConfigModal = (flow) => {
+    console.log('handleOpenConfigModal called with:', flow);
+    if (!flow || !flow.id) {
+      console.error('Flow or flow.id is missing:', flow);
+      toast.error('Erro: ID do fluxo não encontrado');
+      return;
+    }
+    console.log('Setting selectedFlowForConfig to:', flow);
+    setSelectedFlowForConfig(flow);
+    console.log('Opening config modal');
     setConfigModalOpen(true);
   };
 
@@ -424,9 +439,12 @@ const FlowBuilder = () => {
 
       <FlowConfigModal
         open={configModalOpen}
-        onClose={() => setConfigModalOpen(false)}
-        flowId={deletingContact?.id}
-        flowData={deletingContact}
+        onClose={() => {
+          setConfigModalOpen(false);
+          setSelectedFlowForConfig(null);
+        }}
+        flowId={selectedFlowForConfig?.id}
+        flowData={selectedFlowForConfig}
         onSave={() => setReloadData((old) => !old)}
       />
 
@@ -704,8 +722,7 @@ const FlowBuilder = () => {
                            className={classes.actionButton}
                            onClick={(e) => {
                              e.stopPropagation();
-                             setDeletingContact(contact);
-                             setConfigModalOpen(true);
+                             handleOpenConfigModal(contact);
                            }}
                            sx={{
                              backgroundColor: "rgba(0, 0, 0, 0.05)",

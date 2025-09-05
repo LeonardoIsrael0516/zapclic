@@ -757,6 +757,7 @@ const messages = {
 					open: { title: "Open" },
 					closed: { title: "Resolved" },
 					search: { title: "Search" },
+					chatbot: { title: "Chatbot" },
 				},
 				search: {
 					placeholder: "Search tickets and messages",

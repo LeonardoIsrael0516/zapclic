@@ -86,10 +86,18 @@ const ListTicketsService = async ({
   }
 
   if (status) {
-    whereCondition = {
-      ...whereCondition,
-      status
-    };
+    if (status === "chatbot") {
+      whereCondition = {
+        ...whereCondition,
+        chatbot: true,
+        status: "pending"
+      };
+    } else {
+      whereCondition = {
+        ...whereCondition,
+        status
+      };
+    }
   }
 
   if (searchParam) {

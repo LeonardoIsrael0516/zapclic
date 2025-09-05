@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,84 +6,79 @@ import {
   DialogActions,
   Button,
   TextField,
-  FormControlLabel,
   Switch,
+  FormControlLabel,
   Typography,
-  Box,
-  Chip,
   Grid,
-  TimePicker,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { toast } from "react-toastify";
-import api from "../../services/api";
-import toastError from "../../errors/toastError";
+  Chip,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+} from '@mui/material';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
 
-const useStyles = makeStyles((theme) => ({
-  dialogContent: {
-    padding: theme.spacing(3),
-    minWidth: 500,
-  },
-  sectionTitle: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-    fontWeight: "bold",
-  },
-  keywordChip: {
-    margin: theme.spacing(0.5),
-  },
-  timeField: {
-    marginRight: theme.spacing(1),
-  },
-}));
+const DAYS_OF_WEEK = [
+  { value: 0, label: 'Domingo' },
+  { value: 1, label: 'Segunda' },
+  { value: 2, label: 'Terça' },
+  { value: 3, label: 'Quarta' },
+  { value: 4, label: 'Quinta' },
+  { value: 5, label: 'Sexta' },
+  { value: 6, label: 'Sábado' },
+];
 
 const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
-  const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [config, setConfig] = useState({
     workingHours: {
       enabled: false,
-      startTime: "09:00",
-      endTime: "18:00",
-      workingDays: [1, 2, 3, 4, 5], // Segunda a Sexta
-      outOfHoursMessage: "Estamos fora do horário de atendimento. Retornaremos em breve.",
+      startTime: '09:00',
+      endTime: '18:00',
+      workingDays: [1, 2, 3, 4, 5],
+      outOfHoursMessage: 'Estamos fora do horário de atendimento. Retornaremos em breve.',
     },
     keywords: {
       enabled: false,
       list: [],
     },
-    autoStart: {
-      enabled: false,
-      welcomeMessage: "Olá! Como posso ajudá-lo hoje?",
-    },
   });
-  const [newKeyword, setNewKeyword] = useState("");
-
-  const weekDays = [
-    { value: 0, label: "Domingo" },
-    { value: 1, label: "Segunda" },
-    { value: 2, label: "Terça" },
-    { value: 3, label: "Quarta" },
-    { value: 4, label: "Quinta" },
-    { value: 5, label: "Sexta" },
-    { value: 6, label: "Sábado" },
-  ];
+  const [newKeyword, setNewKeyword] = useState('');
 
   useEffect(() => {
     if (open && flowId) {
       fetchFlowConfig();
     }
-  }, [open, flowId, flowData]);
+  }, [open, flowId]);
 
   const fetchFlowConfig = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get(`/flowbuilder/config/${flowId}`);
-      if (data.config) {
-        setConfig(data.config);
+      const response = await api.get(`/flowbuilder/config/${flowId}`);
+      if (response.data.config) {
+        setConfig({
+          workingHours: {
+            enabled: false,
+            startTime: '09:00',
+            endTime: '18:00',
+            workingDays: [1, 2, 3, 4, 5],
+            outOfHoursMessage: 'Estamos fora do horário de atendimento. Retornaremos em breve.',
+            ...response.data.config.workingHours,
+          },
+          keywords: {
+            enabled: false,
+            list: [],
+            ...response.data.config.keywords,
+          },
+        });
       }
-    } catch (err) {
-      console.log("Configuração não encontrada, usando padrão");
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error);
     } finally {
       setLoading(false);
     }
@@ -92,92 +87,109 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
   const handleSave = async () => {
     try {
       setLoading(true);
-      
-      // Salvar configurações
       await api.post(`/flowbuilder/config/${flowId}`, { config });
-      
-      toast.success("Configurações salvas com sucesso!");
-      if (onSave) onSave();
+      toast.success('Configurações salvas com sucesso!');
+      if (onSave) onSave(config);
       onClose();
-    } catch (err) {
-      toastError(err);
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+      toast.error('Erro ao salvar configurações');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddKeyword = () => {
-    if (newKeyword.trim() && !config.keywords.list.includes(newKeyword.trim().toLowerCase())) {
-      setConfig(prev => ({
-        ...prev,
-        keywords: {
-          ...prev.keywords,
-          list: [...prev.keywords.list, newKeyword.trim().toLowerCase()]
-        }
-      }));
-      setNewKeyword("");
-    }
-  };
-
-  const handleRemoveKeyword = (keyword) => {
-    setConfig(prev => ({
-      ...prev,
-      keywords: {
-        ...prev.keywords,
-        list: prev.keywords.list.filter(k => k !== keyword)
-      }
-    }));
-  };
-
-  const handleWorkingDayToggle = (dayValue) => {
+  const handleWorkingHoursChange = (field, value) => {
     setConfig(prev => ({
       ...prev,
       workingHours: {
         ...prev.workingHours,
-        workingDays: prev.workingHours.workingDays.includes(dayValue)
-          ? prev.workingHours.workingDays.filter(d => d !== dayValue)
-          : [...prev.workingHours.workingDays, dayValue]
-      }
+        [field]: value,
+      },
     }));
   };
 
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Configurações do Fluxo</DialogTitle>
-      <DialogContent className={classes.dialogContent}>
+  const handleKeywordsChange = (field, value) => {
+    setConfig(prev => ({
+      ...prev,
+      keywords: {
+        ...prev.keywords,
+        [field]: value,
+      },
+    }));
+  };
 
-        {/* Horário de Expediente */}
-        <Typography variant="h6" className={classes.sectionTitle}>
-          Horário de Expediente
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={config.workingHours.enabled}
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                workingHours: { ...prev.workingHours, enabled: e.target.checked }
-              }))}
+
+
+  const addKeyword = () => {
+    if (newKeyword.trim() && !config.keywords.list.includes(newKeyword.trim())) {
+      handleKeywordsChange('list', [...config.keywords.list, newKeyword.trim()]);
+      setNewKeyword('');
+    }
+  };
+
+  const removeKeyword = (keyword) => {
+    handleKeywordsChange('list', config.keywords.list.filter(k => k !== keyword));
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addKeyword();
+    }
+  };
+
+  if (!open) return null;
+
+  if (!flowId) {
+    return (
+      <Dialog open={true} onClose={onClose} maxWidth="sm">
+        <DialogTitle>Erro</DialogTitle>
+        <DialogContent>
+          <Typography>ID do fluxo não encontrado. Por favor, tente novamente.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="primary">
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        Configurações do Fluxo - {flowData?.name || 'Fluxo'}
+      </DialogTitle>
+      <DialogContent dividers>
+        <Grid container spacing={3}>
+          {/* Horário de Expediente */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Horário de Expediente
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={config.workingHours.enabled}
+                  onChange={(e) => handleWorkingHoursChange('enabled', e.target.checked)}
+                />
+              }
+              label="Ativar controle de horário de expediente"
             />
-          }
-          label="Ativar controle de horário de expediente"
-        />
-        
-        {config.workingHours.enabled && (
-          <Box mt={2}>
-            <Grid container spacing={2}>
+          </Grid>
+
+          {config.workingHours.enabled && (
+            <>
               <Grid item xs={6}>
                 <TextField
                   label="Horário de Início"
                   type="time"
                   value={config.workingHours.startTime}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    workingHours: { ...prev.workingHours, startTime: e.target.value }
-                  }))}
-                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => handleWorkingHoursChange('startTime', e.target.value)}
                   fullWidth
-                  className={classes.timeField}
+                  InputLabelProps={{ shrink: true }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -185,157 +197,111 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
                   label="Horário de Fim"
                   type="time"
                   value={config.workingHours.endTime}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    workingHours: { ...prev.workingHours, endTime: e.target.value }
-                  }))}
+                  onChange={(e) => handleWorkingHoursChange('endTime', e.target.value)}
+                  fullWidth
                   InputLabelProps={{ shrink: true }}
-                  fullWidth
                 />
               </Grid>
-            </Grid>
-            
-            <Box mt={2}>
-              <Typography variant="subtitle2">Dias de Funcionamento:</Typography>
-              <Box mt={1}>
-                {weekDays.map(day => (
-                  <FormControlLabel
-                    key={day.value}
-                    control={
-                      <Switch
-                        checked={config.workingHours.workingDays.includes(day.value)}
-                        onChange={() => handleWorkingDayToggle(day.value)}
-                        size="small"
-                      />
-                    }
-                    label={day.label}
-                  />
-                ))}
-              </Box>
-            </Box>
-            
-            <TextField
-              label="Mensagem fora do expediente"
-              multiline
-              rows={3}
-              value={config.workingHours.outOfHoursMessage}
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                workingHours: { ...prev.workingHours, outOfHoursMessage: e.target.value }
-              }))}
-              fullWidth
-              margin="normal"
-            />
-          </Box>
-        )}
-
-        {/* Palavras-chave */}
-        <Typography variant="h6" className={classes.sectionTitle}>
-          Palavras-chave para Iniciar Fluxo
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={config.keywords.enabled}
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                keywords: { ...prev.keywords, enabled: e.target.checked }
-              }))}
-            />
-          }
-          label="Ativar início por palavras-chave"
-        />
-        
-        {config.keywords.enabled && (
-          <Box mt={2}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={8}>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Dias de Funcionamento</InputLabel>
+                  <Select
+                    multiple
+                    value={config.workingHours.workingDays}
+                    onChange={(e) => handleWorkingHoursChange('workingDays', e.target.value)}
+                    input={<OutlinedInput label="Dias de Funcionamento" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={DAYS_OF_WEEK.find(day => day.value === value)?.label}
+                            size="small"
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {DAYS_OF_WEEK.map((day) => (
+                      <MenuItem key={day.value} value={day.value}>
+                        <Checkbox checked={config.workingHours.workingDays.indexOf(day.value) > -1} />
+                        <ListItemText primary={day.label} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
                 <TextField
-                  label="Nova palavra-chave"
-                  value={newKeyword}
-                  onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
+                  label="Mensagem fora do horário"
+                  multiline
+                  rows={3}
+                  value={config.workingHours.outOfHoursMessage}
+                  onChange={(e) => handleWorkingHoursChange('outOfHoursMessage', e.target.value)}
                   fullWidth
-                  placeholder="Digite uma palavra-chave"
                 />
               </Grid>
-              <Grid item xs={4}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddKeyword}
-                  disabled={!newKeyword.trim()}
-                  fullWidth
-                >
-                  Adicionar
-                </Button>
-              </Grid>
-            </Grid>
-            
-            <Box mt={2}>
-              {config.keywords.list.map((keyword, index) => (
-                <Chip
-                  key={index}
-                  label={keyword}
-                  onDelete={() => handleRemoveKeyword(keyword)}
-                  className={classes.keywordChip}
-                  color="primary"
-                  variant="outlined"
-                />
-              ))}
-              {config.keywords.list.length === 0 && (
-                <Typography variant="body2" color="textSecondary">
-                  Nenhuma palavra-chave adicionada
-                </Typography>
-              )}
-            </Box>
-          </Box>
-        )}
+            </>
+          )}
 
-        {/* Início Automático */}
-        <Typography variant="h6" className={classes.sectionTitle}>
-          Início Automático
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={config.autoStart.enabled}
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                autoStart: { ...prev.autoStart, enabled: e.target.checked }
-              }))}
+          {/* Palavras-chave */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Palavras-chave
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={config.keywords.enabled}
+                  onChange={(e) => handleKeywordsChange('enabled', e.target.checked)}
+                />
+              }
+              label="Ativar detecção de palavras-chave"
             />
-          }
-          label="Iniciar fluxo automaticamente para novos contatos"
-        />
-        
-        {config.autoStart.enabled && (
-          <TextField
-            label="Mensagem de boas-vindas"
-            multiline
-            rows={2}
-            value={config.autoStart.welcomeMessage}
-            onChange={(e) => setConfig(prev => ({
-              ...prev,
-              autoStart: { ...prev.autoStart, welcomeMessage: e.target.value }
-            }))}
-            fullWidth
-            margin="normal"
-          />
-        )}
+          </Grid>
+
+          {config.keywords.enabled && (
+            <>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <TextField
+                    label="Nova palavra-chave"
+                    value={newKeyword}
+                    onChange={(e) => setNewKeyword(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    size="small"
+                    sx={{ flexGrow: 1 }}
+                  />
+                  <Button onClick={addKeyword} variant="outlined" size="small">
+                    Adicionar
+                  </Button>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {config.keywords.list.map((keyword, index) => (
+                    <Chip
+                      key={index}
+                      label={keyword}
+                      onDelete={() => removeKeyword(keyword)}
+                      color="primary"
+                      variant="outlined"
+                    />
+                  ))}
+                </Box>
+              </Grid>
+            </>
+          )}
+
+
+        </Grid>
       </DialogContent>
-      
       <DialogActions>
         <Button onClick={onClose} color="secondary">
           Cancelar
         </Button>
-        <Button
-          onClick={handleSave}
-          color="primary"
-          variant="contained"
-          disabled={loading}
-        >
-          {loading ? "Salvando..." : "Salvar"}
+        <Button onClick={handleSave} color="primary" variant="contained" disabled={loading}>
+          {loading ? 'Salvando...' : 'Salvar'}
         </Button>
       </DialogActions>
     </Dialog>

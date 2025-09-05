@@ -48,6 +48,7 @@ import { cacheLayer } from "../../libs/cache";
 import { provider } from "./providers";
 import { debounce } from "../../helpers/Debounce";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import FlowKeywordService from "../FlowBuilderService/FlowKeywordService";
 import ffmpeg from "fluent-ffmpeg";
 import {
   SpeechConfig,
@@ -1756,6 +1757,20 @@ const flowbuilderIntegration = async (
   const quotedMsg = await verifyQuotedMessage(msg);
   const body = getBodyMessage(msg);
 
+  // Processar mensagem com o novo serviço de palavras-chave
+  const flowTriggered = await FlowKeywordService.processMessage(
+    body,
+    contact,
+    ticket,
+    companyId,
+    isFirstMsg ? true : false
+  );
+
+  // Se um fluxo foi disparado pelo serviço, retornar
+  if (flowTriggered) {
+    return;
+  }
+
   /*
   const messageData = {
     wid: msg.key.id,
@@ -1864,6 +1879,16 @@ const flowbuilderIntegration = async (
       //   console.log(`Mensagem do worker: ${message}`);
       // });
 
+      // Primeiro atualizar o ticket para marcar como chatbot
+      await UpdateTicketService({
+        ticketData: {
+          chatbot: true,
+          flowWebhook: true
+        },
+        ticketId: ticket.id,
+        companyId: ticket.companyId
+      });
+
       await ActionsWebhookService(
         whatsapp.id,
         whatsapp.flowIdWelcome,
@@ -1919,6 +1944,16 @@ const flowbuilderIntegration = async (
         name: contact.name,
         email: contact.email
       };
+
+      // Primeiro atualizar o ticket para marcar como chatbot
+      await UpdateTicketService({
+        ticketData: {
+          chatbot: true,
+          flowWebhook: true
+        },
+        ticketId: ticket.id,
+        companyId: ticket.companyId
+      });
 
       await ActionsWebhookService(
         whatsapp.id,
@@ -1979,6 +2014,16 @@ const flowbuilderIntegration = async (
     //   console.log(`Mensagem do worker: ${message}`);
     // });
 
+    // Primeiro atualizar o ticket para marcar como chatbot
+    await UpdateTicketService({
+      ticketData: {
+        chatbot: true,
+        flowWebhook: true
+      },
+      ticketId: ticket.id,
+      companyId: ticket.companyId
+    });
+
     await ActionsWebhookService(
       whatsapp.id,
       flowDispar.flowId,
@@ -2036,6 +2081,16 @@ const flowbuilderIntegration = async (
       //   console.log(`Mensagem do worker: ${message}`);
       // });
 
+      // Primeiro atualizar o ticket para marcar como chatbot
+      await UpdateTicketService({
+        ticketData: {
+          chatbot: true,
+          flowWebhook: true
+        },
+        ticketId: ticket.id,
+        companyId: ticket.companyId
+      });
+
       await ActionsWebhookService(
         whatsapp.id,
         webhook.config["details"].idFlow,
@@ -2090,6 +2145,16 @@ const flowbuilderIntegration = async (
       // worker.on("message", message => {
       //   console.log(`Mensagem do worker: ${message}`);
       // });
+
+      // Primeiro atualizar o ticket para marcar como chatbot
+      await UpdateTicketService({
+        ticketData: {
+          chatbot: true,
+          flowWebhook: true
+        },
+        ticketId: ticket.id,
+        companyId: ticket.companyId
+      });
 
       await ActionsWebhookService(
         whatsapp.id,
@@ -2219,6 +2284,16 @@ const flowBuilderQueue = async (
   ) {
     return;
   }
+
+  // Primeiro atualizar o ticket para marcar como chatbot
+  await UpdateTicketService({
+    ticketData: {
+      chatbot: true,
+      flowWebhook: true
+    },
+    ticketId: ticket.id,
+    companyId: ticket.companyId
+  });
 
   await ActionsWebhookService(
     whatsapp.id,
@@ -2543,6 +2618,16 @@ const handleMessage = async (
           name: contact.name,
           email: contact.email
         };
+
+        // Primeiro atualizar o ticket para marcar como chatbot
+        await UpdateTicketService({
+          ticketData: {
+            chatbot: true,
+            flowWebhook: true
+          },
+          ticketId: ticket.id,
+          companyId: ticket.companyId
+        });
 
         await ActionsWebhookService(
           whatsapp.id,

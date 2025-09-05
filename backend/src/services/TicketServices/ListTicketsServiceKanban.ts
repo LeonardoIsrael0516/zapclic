@@ -92,7 +92,10 @@ const ListTicketsServiceKanban = async ({
 
   whereCondition = {
     ...whereCondition,
-    status: { [Op.or]: ["pending", "open"] }
+    [Op.or]: [
+      { status: { [Op.or]: ["pending", "open"] } },
+      { chatbot: true }
+    ]
   };
 
   if (searchParam) {

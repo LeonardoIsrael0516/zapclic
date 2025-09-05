@@ -8,7 +8,7 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import ChatIcon from '@material-ui/icons/Chat';
 
-import TicketsManagerTabs from "../../components/TicketsManagerTabs/";
+import TicketsManager from "../../components/TicketsManager";
 import Ticket from "../../components/Ticket/";
 import TicketAdvancedLayout from "../../components/TicketAdvancedLayout";
 import logo from "../../assets/logo.png"; //PLW DESIGN LOGO//
@@ -81,8 +81,8 @@ const TicketAdvanced = (props) => {
 		return renderPlaceholder()
 	}
 
-	const renderTicketsManagerTabs = () => {
-		return <TicketsManagerTabs />
+	const renderTicketsManager = () => {
+		return <TicketsManager />
 	}
 
 	return (
@@ -101,7 +101,7 @@ const TicketAdvanced = (props) => {
                 </BottomNavigation>
             </Box>
             <Box className={classes.content}>
-                { option === 0 ? renderMessageContext() : renderTicketsManagerTabs() }
+                { option === 0 ? renderMessageContext() : renderTicketsManager() }
             </Box>
         </TicketAdvancedLayout>
 	);

@@ -104,7 +104,7 @@ const FlowBuilderModal = ({
         });
         onSave(values.name);
         handleClose();
-        toast.success(i18n.t("webhookModal.saveSuccess"));
+        toast.success("Fluxo criado com sucesso!");
       } catch (err) {
         toastError(err);
       }

@@ -15,7 +15,8 @@ import {
   AllInboxRounded,
   HourglassEmptyRounded,
   MoveToInbox,
-  Search
+  Search,
+  AccountTree
 } from "@material-ui/icons";
 
 import NewTicketModal from "../NewTicketModal";
@@ -115,6 +116,7 @@ const TicketsManager = () => {
 
   const [openCount, setOpenCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
+  const [chatbotCount, setChatbotCount] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
 
   const userQueueIds = user.queues.map((q) => q.id);
@@ -211,6 +213,21 @@ const TicketsManager = () => {
             classes={{ root: classes.tab }}
           />
           <Tab
+            value={"chatbot"}
+            icon={<AccountTree />}
+            label={
+              <Badge
+                className={classes.badge}
+                badgeContent={chatbotCount}
+                overlap="rectangular"
+                color="secondary"
+              >
+                {i18n.t("tickets.tabs.chatbot.title")}
+              </Badge>
+            }
+            classes={{ root: classes.tab }}
+          />
+          <Tab
             value={"closed"}
             icon={<AllInboxRounded />}
             label={i18n.t("tickets.tabs.closed.title")}
@@ -283,7 +300,15 @@ const TicketsManager = () => {
         />
       </TabPanel>
 
-
+      <TabPanel value={tab} name="chatbot" className={classes.ticketsWrapper}>
+      <TagsFilter onFiltered={handleSelectedTags} />
+        <TicketsList
+          status="chatbot"
+          showAll={true}
+          selectedQueueIds={selectedQueueIds}
+          updateCount={(val) => setChatbotCount(val)}
+        />
+      </TabPanel>
 
       <TabPanel value={tab} name="closed" className={classes.ticketsWrapper}>
       <TagsFilter onFiltered={handleSelectedTags} />

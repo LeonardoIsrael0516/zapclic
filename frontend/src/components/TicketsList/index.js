@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
-import openSocket from "../../services/socket-io";
+import openSocket from "socket.io-client";
 
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";

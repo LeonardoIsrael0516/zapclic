@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import RoomIcon from '@material-ui/icons/Room';
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
-import AndroidIcon from "@material-ui/icons/Android";
+import AccountTree from "@material-ui/icons/AccountTree";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import TicketMessagesDialog from "../TicketMessagesDialog";
 import DoneIcon from '@material-ui/icons/Done';
@@ -332,7 +332,7 @@ const useStyles = makeStyles((theme) => ({
         <>
           {ticket.chatbot && (
             <Tooltip title={i18n.t("ticketsListItem.tooltip.chatbot")}>
-              <AndroidIcon
+              <AccountTree
                 fontSize="small"
                 style={{ color: grey[700], marginRight: 5 }}
               />
@@ -347,7 +347,7 @@ const useStyles = makeStyles((theme) => ({
         <>
           {ticket.chatbot && (
             <Tooltip title={i18n.t("ticketsListItem.tooltip.chatbot")}>
-              <AndroidIcon
+              <AccountTree
                 fontSize="small"
                 style={{ color: grey[700], marginRight: 5 }}
               />

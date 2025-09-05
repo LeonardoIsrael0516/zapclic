@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 
-import TicketsManager from "../../components/TicketsManagerTabs/";
+import TicketsManager from "../../components/TicketsManager/";
 import Ticket from "../../components/Ticket/";
 import logo from "../../assets/logo.png"; //PLW DESIGN LOGO//
 import { i18n } from "../../translate/i18n";

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Modal</title>
+    <script>
+        // Simular teste do modal
+        console.log('Testing FlowConfigModal...');
+        
+        // Verificar se há erros de JavaScript
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript Error:', e.error);
+            document.body.innerHTML += '<div style="color: red; padding: 10px;">Error: ' + e.message + '</div>';
+        });
+        
+        window.addEventListener('load', function() {
+            console.log('Page loaded successfully');
+            document.body.innerHTML += '<div style="color: green; padding: 10px;">Page loaded without errors</div>';
+        });
+    </script>
+</head>
+<body>
+    <h1>Modal Test Page</h1>
+    <p>Check console for errors...</p>
+</body>
+</html>

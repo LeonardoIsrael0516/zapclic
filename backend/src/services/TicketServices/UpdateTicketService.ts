@@ -25,6 +25,7 @@ interface TicketData {
   userId?: number | null;
   queueId?: number | null;
   chatbot?: boolean;
+  flowWebhook?: boolean;
   queueOptionId?: number;
   whatsappId?: string;
   useIntegration?: boolean;
@@ -267,7 +268,8 @@ const UpdateTicketService = async ({
       userId,
       whatsappId,
       chatbot,
-      queueOptionId
+      queueOptionId,
+      flowWebhook: ticketData.flowWebhook
     });
 
     await ticket.reload();

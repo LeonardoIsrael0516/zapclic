@@ -3,21 +3,8 @@ import { changeLanguage, i18n } from "../../translate/i18n";
 import { RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
 import api from "../../services/api";
 
-// Função para detectar o idioma do navegador
-const detectBrowserLanguage = () => {
-    const browserLang = navigator.language || navigator.userLanguage;
-    
-    // Mapear códigos de idioma do navegador para os suportados
-    if (browserLang.startsWith('pt')) return 'pt';
-    if (browserLang.startsWith('es')) return 'es';
-    if (browserLang.startsWith('en')) return 'en';
-    
-    // Fallback para português se não encontrar correspondência
-    return 'pt';
-};
-
 const LanguageControl = () => {
-    const [selectedLanguage, setSelectedLanguage] = useState(detectBrowserLanguage());
+    const [selectedLanguage, setSelectedLanguage] = useState('en');
 
     const handleLanguageChange = async (event) => {
         const newLanguage = event.target.value;
@@ -33,14 +20,8 @@ const LanguageControl = () => {
     };
 
     useEffect(() => {
-        const saveLanguage = localStorage.getItem('i18nextLng') || detectBrowserLanguage();
+        const saveLanguage = localStorage.getItem('i18nextLng');
         setSelectedLanguage(saveLanguage);
-        
-        // Se não há idioma salvo, salvar o detectado automaticamente
-        if (!localStorage.getItem('i18nextLng')) {
-            localStorage.setItem('i18nextLng', saveLanguage);
-            changeLanguage(saveLanguage);
-        }
     }, []);
 
     return (

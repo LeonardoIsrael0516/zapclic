@@ -367,7 +367,9 @@ export const ActionsWebhookService = async (
         await UpdateTicketService({
           ticketData: {
             status: "pending",
-            queueId: queue.id
+            queueId: queue.id,
+            chatbot: true,
+            flowWebhook: true
           },
           ticketId: ticket.id,
           companyId

@@ -62,4 +62,17 @@ flowBuilder.post(
   FlowBuilderController.FlowUploadAll
 );
 
+// Rotas para configurações de fluxo
+flowBuilder.post(
+  "/flowbuilder/config/:flowId",
+  isAuth,
+  FlowBuilderController.saveFlowConfig
+);
+
+flowBuilder.get(
+  "/flowbuilder/config/:flowId",
+  isAuth,
+  FlowBuilderController.getFlowConfig
+);
+
 export default flowBuilder;
