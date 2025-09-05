@@ -1,4 +1,5 @@
 import { getIO } from "../../libs/socket";
+import moment from "moment";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import Whatsapp from "../../models/Whatsapp";
@@ -69,6 +70,16 @@ const CreateMessageService = async ({
       message,
       ticket: message.ticket,
       contact: message.ticket.contact
+    });
+
+  // Emite evento adicional para atualização imediata das abas
+  io.to(`company-${companyId}-mainchannel`)
+    .emit(`company-${companyId}-new-message`, {
+      action: "new-message",
+      ticketId: message.ticketId,
+      messageId: message.id,
+      status: message.ticket.status,
+      timestamp: moment().toISOString()
     });
 
   return message;

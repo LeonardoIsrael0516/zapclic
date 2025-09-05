@@ -202,6 +202,7 @@ const TicketsListCustom = (props) => {
 
   useEffect(() => {
     const companyId = localStorage.getItem("companyId");
+    console.log("[TicketsListCustom] useEffect executado - CompanyId:", companyId, "status:", status, "searchParam:", searchParam);
     const socket = socketManager.getSocket(companyId);
 
     const shouldUpdateTicket = (ticket) =>
@@ -271,10 +272,66 @@ const TicketsListCustom = (props) => {
       }
     });
 
+    // Escuta o heartbeat do servidor para sincronização
+    socket.on("heartbeat", (data) => {
+      console.log("[TicketsListCustom] Heartbeat recebido:", data);
+      if (data.action === "sync" && status && !searchParam) {
+        console.log("[TicketsListCustom] Atualizando tickets via heartbeat");
+        // Força uma nova busca de tickets quando recebe heartbeat
+        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
+      }
+    });
+
+    // Escuta mudanças de status para atualização imediata
+    socket.on(`company-${companyId}-ticket-status-change`, (data) => {
+      console.log("[TicketsListCustom] Status change recebido:", data);
+      if (data.action === "status-change") {
+        console.log("[TicketsListCustom] Atualizando tickets via status change");
+        // Atualiza imediatamente quando há mudança de status
+        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
+        // Força atualização do contador
+        if (typeof updateCount === "function") {
+          setTimeout(() => updateCount(ticketsList.length), 100);
+        }
+      }
+    });
+
+    // Escuta novas mensagens para atualização imediata
+    socket.on(`company-${companyId}-new-message`, (data) => {
+      console.log("[TicketsListCustom] New message recebido:", data);
+      if (data.action === "new-message" && (status === undefined || data.status === status)) {
+        console.log("[TicketsListCustom] Atualizando tickets via new message");
+        // Atualiza imediatamente quando há nova mensagem
+        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
+        // Força atualização do contador
+        if (typeof updateCount === "function") {
+          setTimeout(() => updateCount(ticketsList.length), 100);
+        }
+      }
+    });
+
+    // Sistema de atualização automática mais frequente
+    const autoRefreshInterval = setInterval(() => {
+      // Força uma nova busca de tickets a cada 5 segundos para teste
+      if (status && !searchParam) {
+        console.log("[TicketsListCustom] Auto refresh executado - status:", status, "searchParam:", searchParam);
+        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
+      }
+    }, 5000); // 5 segundos para teste
+
+    // Teste: força uma atualização após 3 segundos
+    setTimeout(() => {
+      if (status && !searchParam) {
+        console.log("[TicketsListCustom] TESTE: Forçando atualização após 3s");
+        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
+      }
+    }, 3000);
+
     return () => {
       socket.disconnect();
+      clearInterval(autoRefreshInterval);
     };
-  }, [status, showAll, user, selectedQueueIds, tags, users, profile, queues, socketManager]);
+  }, [status, showAll, user, selectedQueueIds, tags, users, profile, queues, socketManager, searchParam]);
 
   useEffect(() => {
     if (typeof updateCount === "function") {

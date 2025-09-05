@@ -366,9 +366,8 @@ export const ActionsWebhookService = async (
 
         await UpdateTicketService({
           ticketData: {
-            status: "pending",
+            status: "chatbot",
             queueId: queue.id,
-            chatbot: true,
             flowWebhook: true
           },
           ticketId: ticket.id,
@@ -425,6 +424,13 @@ export const ActionsWebhookService = async (
             lastMessage: bodyFila
           });
         }*/
+      }
+
+      if (nodeSelected.type === "interval") {
+        // Processar nó de intervalo
+        const intervalSeconds = nodeSelected.data.sec || "1";
+        console.log(`⏰ Executando intervalo de ${intervalSeconds} segundos`);
+        await intervalWhats(intervalSeconds);
       }
 
       if (nodeSelected.type === "singleBlock") {

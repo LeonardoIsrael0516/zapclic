@@ -61,7 +61,7 @@ import ShowQueueIntegrationService from "../QueueIntegrationServices/ShowQueueIn
 
 import { FlowBuilderModel } from "../../models/FlowBuilder";
 import { FlowDefaultModel } from "../../models/FlowDefault";
-import { FlowCampaignModel } from "../../models/FlowCampaign";
+// FlowCampaignModel removido - funcionalidade migrada para FlowKeywordService
 import { IOpenAi } from "../../@types/openai";
 
 import { IConnections, INodes } from "../WebhookService/DispatchWebHookService";
@@ -1023,6 +1023,12 @@ export const verifyMessage = async (
         ticketId: ticket.id
       });
   }
+
+  // Não alterar status se o ticket estiver em chatbot (preservar fluxo)
+  if (!msg.key.fromMe && ticket.status === "chatbot") {
+    // Apenas atualizar lastMessage, não alterar status
+    return;
+  }
 };
 
 const isValidMsg = (msg: proto.IWebMessageInfo): boolean => {
@@ -1154,8 +1160,11 @@ const verifyQueue = async (
       // return;
     }
 
+    // Preservar status 'chatbot' se já estiver definido, caso contrário usar 'pending'
+    const statusToSet = ticket.status === "chatbot" ? "chatbot" : "pending";
+    
     await UpdateTicketService({
-      ticketData: { queueId: firstQueue.id, chatbot, status: "pending" },
+      ticketData: { queueId: firstQueue.id, chatbot, status: statusToSet },
       ticketId: ticket.id,
       companyId: ticket.companyId
     });
@@ -1198,8 +1207,14 @@ const verifyQueue = async (
       chatbot = choosenQueue.options.length > 0;
     }
 
+    // Preservar status 'chatbot' se já estiver definido
+    const statusToSet = ticket.status === "chatbot" ? "chatbot" : undefined;
+    const ticketData = statusToSet 
+      ? { queueId: choosenQueue.id, chatbot, status: statusToSet }
+      : { queueId: choosenQueue.id, chatbot };
+    
     await UpdateTicketService({
-      ticketData: { queueId: choosenQueue.id, chatbot },
+      ticketData,
       ticketId: ticket.id,
       companyId: ticket.companyId
     });
@@ -1242,8 +1257,14 @@ const verifyQueue = async (
             }
           );
           await verifyMessage(sentMessage, ticket, contact);
+          // Preservar status 'chatbot' se já estiver definido
+          const statusToSet = ticket.status === "chatbot" ? "chatbot" : undefined;
+          const ticketData = statusToSet 
+            ? { queueId: null, chatbot, status: statusToSet }
+            : { queueId: null, chatbot };
+          
           await UpdateTicketService({
-            ticketData: { queueId: null, chatbot },
+            ticketData,
             ticketId: ticket.id,
             companyId: ticket.companyId
           });
@@ -1753,11 +1774,26 @@ const flowbuilderIntegration = async (
   isFirstMsg?: Ticket,
   isTranfered?: boolean
 ) => {
+  console.log('🔍 [DEBUG] flowbuilderIntegration chamada:', {
+    ticketId: ticket.id,
+    contactNumber: contact.number,
+    isFirstMsg: !!isFirstMsg,
+    body: getBodyMessage(msg)
+  });
+  
   const io = getIO();
   const quotedMsg = await verifyQuotedMessage(msg);
   const body = getBodyMessage(msg);
 
   // Processar mensagem com o novo serviço de palavras-chave
+  console.log('🔍 [DEBUG] Chamando FlowKeywordService.processMessage:', {
+    body,
+    contactId: contact.id,
+    ticketId: ticket.id,
+    companyId,
+    isFirstMsg: isFirstMsg ? true : false
+  });
+  
   const flowTriggered = await FlowKeywordService.processMessage(
     body,
     contact,
@@ -1765,9 +1801,12 @@ const flowbuilderIntegration = async (
     companyId,
     isFirstMsg ? true : false
   );
+  
+  console.log('🔍 [DEBUG] FlowKeywordService.processMessage resultado:', flowTriggered);
 
   // Se um fluxo foi disparado pelo serviço, retornar
   if (flowTriggered) {
+    console.log('🔍 [DEBUG] Fluxo foi disparado, retornando...');
     return;
   }
 
@@ -1831,79 +1870,27 @@ const flowbuilderIntegration = async (
 
   const whatsapp = await ShowWhatsAppService(wbot.id!, companyId);
 
-  const listPhrase = await FlowCampaignModel.findAll({
-    where: {
-      whatsappId: whatsapp.id
-    }
-  });
-
-  // Welcome flow
-  if (
-    !isFirstMsg &&
-    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase()).length === 0
-  ) {
-    const flow = await FlowBuilderModel.findOne({
-      where: {
-        id: whatsapp.flowIdWelcome
-      }
+  // Welcome flow - usando FlowKeywordService para consistência
+  if (!isFirstMsg) {
+    console.log('🔍 [DEBUG] Tentando disparar Welcome flow via FlowKeywordService:', {
+      whatsappId: whatsapp.id,
+      flowIdWelcome: whatsapp.flowIdWelcome,
+      companyId
     });
-    if (flow) {
-      const nodes: INodes[] = flow.flow["nodes"];
-      const connections: IConnections[] = flow.flow["connections"];
-
-      const mountDataContact = {
-        number: contact.number,
-        name: contact.name,
-        email: contact.email
-      };
-
-      // const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
-
-      // // Enviar as variáveis como parte da mensagem para o Worker
-      // console.log('DISPARO1')
-      // const data = {
-      //   idFlowDb: flowUse.flowIdWelcome,
-      //   companyId: ticketUpdate.companyId,
-      //   nodes: nodes,
-      //   connects: connections,
-      //   nextStage: flow.flow["nodes"][0].id,
-      //   dataWebhook: null,
-      //   details: "",
-      //   hashWebhookId: "",
-      //   pressKey: null,
-      //   idTicket: ticketUpdate.id,
-      //   numberPhrase: mountDataContact
-      // };
-      // worker.postMessage(data);
-      // worker.on("message", message => {
-      //   console.log(`Mensagem do worker: ${message}`);
-      // });
-
-      // Primeiro atualizar o ticket para marcar como chatbot
-      await UpdateTicketService({
-        ticketData: {
-          chatbot: true,
-          flowWebhook: true
-        },
-        ticketId: ticket.id,
-        companyId: ticket.companyId
-      });
-
-      await ActionsWebhookService(
-        whatsapp.id,
-        whatsapp.flowIdWelcome,
-        ticket.companyId,
-        nodes,
-        connections,
-        flow.flow["nodes"][0].id,
-        null,
-        "",
-        "",
-        null,
-        ticket.id,
-        mountDataContact,
-        msg
-      );
+    
+    const welcomeFlowTriggered = await FlowKeywordService.processWelcomeFlow(
+      contact,
+      ticket,
+      companyId,
+      whatsapp.id,
+      whatsapp.flowIdWelcome
+    );
+    
+    console.log('🔍 [DEBUG] Welcome flow resultado:', welcomeFlowTriggered);
+    
+    if (welcomeFlowTriggered) {
+      console.log('🔍 [DEBUG] Welcome flow foi disparado, retornando...');
+      return;
     }
   }
 
@@ -1918,12 +1905,10 @@ const flowbuilderIntegration = async (
   //const seisHorasEmMilissegundos = 21600000;
   const seisHorasEmMilissegundos = 0;
 
-  logger.info(listPhrase.filter(item => item.phrase.toLowerCase()));
   logger.info(isFirstMsg);
 
-  // Flow with not found phrase
+  // Flow with not found phrase - removido filtro de listPhrase
   if (
-    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase()).length === 0 &&
     diferencaEmMilissegundos >= seisHorasEmMilissegundos &&
     isFirstMsg
   ) {
@@ -1948,7 +1933,7 @@ const flowbuilderIntegration = async (
       // Primeiro atualizar o ticket para marcar como chatbot
       await UpdateTicketService({
         ticketData: {
-          chatbot: true,
+          status: "chatbot",
           flowWebhook: true
         },
         ticketId: ticket.id,
@@ -1973,73 +1958,8 @@ const flowbuilderIntegration = async (
     }
   }
 
-  // Campaign fluxo
-  if (listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase()).length !== 0) {
-
-    const flowDispar = listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase())[0];
-    const flow = await FlowBuilderModel.findOne({
-      where: {
-        id: flowDispar.flowId
-      }
-    });
-    const nodes: INodes[] = flow.flow["nodes"];
-    const connections: IConnections[] = flow.flow["connections"];
-
-    const mountDataContact = {
-      number: contact.number,
-      name: contact.name,
-      email: contact.email
-    };
-
-    //const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
-
-    //console.log('DISPARO3')
-    // Enviar as variáveis como parte da mensagem para o Worker
-    // const data = {
-    //   idFlowDb: flowDispar.flowId,
-    //   companyId: ticketUpdate.companyId,
-    //   nodes: nodes,
-    //   connects: connections,
-    //   nextStage: flow.flow["nodes"][0].id,
-    //   dataWebhook: null,
-    //   details: "",
-    //   hashWebhookId: "",
-    //   pressKey: null,
-    //   idTicket: ticketUpdate.id,
-    //   numberPhrase: mountDataContact
-    // };
-    // worker.postMessage(data);
-
-    // worker.on("message", message => {
-    //   console.log(`Mensagem do worker: ${message}`);
-    // });
-
-    // Primeiro atualizar o ticket para marcar como chatbot
-    await UpdateTicketService({
-      ticketData: {
-        chatbot: true,
-        flowWebhook: true
-      },
-      ticketId: ticket.id,
-      companyId: ticket.companyId
-    });
-
-    await ActionsWebhookService(
-      whatsapp.id,
-      flowDispar.flowId,
-      ticket.companyId,
-      nodes,
-      connections,
-      flow.flow["nodes"][0].id,
-      null,
-      "",
-      "",
-      null,
-      ticket.id,
-      mountDataContact
-    );
-    return;
-  }
+  // Campaign flow removido - funcionalidade migrada para FlowKeywordService
+  // O FlowKeywordService já processa palavras-chave configuradas nos fluxos
 
   if (ticket.flowWebhook) {
     const webhook = await WebhookModel.findOne({
@@ -2084,7 +2004,7 @@ const flowbuilderIntegration = async (
       // Primeiro atualizar o ticket para marcar como chatbot
       await UpdateTicketService({
         ticketData: {
-          chatbot: true,
+          status: "chatbot",
           flowWebhook: true
         },
         ticketId: ticket.id,
@@ -2149,7 +2069,7 @@ const flowbuilderIntegration = async (
       // Primeiro atualizar o ticket para marcar como chatbot
       await UpdateTicketService({
         ticketData: {
-          chatbot: true,
+          status: "chatbot",
           flowWebhook: true
         },
         ticketId: ticket.id,
@@ -2186,6 +2106,13 @@ export const handleMessageIntegration = async (
   contact: Contact = null,
   isFirstMsg: Ticket | null = null,
 ): Promise<void> => {
+  console.log('🔍 [DEBUG] handleMessageIntegration chamada:', {
+    ticketId: ticket.id,
+    integrationType: queueIntegration.type,
+    isMenu,
+    msgType: getTypeMessage(msg)
+  });
+  
   const msgType = getTypeMessage(msg);
 
   if (queueIntegration.type === "n8n" || queueIntegration.type === "webhook") {
@@ -2288,7 +2215,7 @@ const flowBuilderQueue = async (
   // Primeiro atualizar o ticket para marcar como chatbot
   await UpdateTicketService({
     ticketData: {
-      chatbot: true,
+      status: "chatbot",
       flowWebhook: true
     },
     ticketId: ticket.id,
@@ -2622,7 +2549,7 @@ const handleMessage = async (
         // Primeiro atualizar o ticket para marcar como chatbot
         await UpdateTicketService({
           ticketData: {
-            chatbot: true,
+            status: "chatbot",
             flowWebhook: true
           },
           ticketId: ticket.id,
@@ -2703,33 +2630,7 @@ const handleMessage = async (
       await handleOpenAi(msg, wbot, ticket, contact, mediaSent);
     }
 
-    //integraçao na conexao
-    if (
-      !msg.key.fromMe &&
-      !ticket.isGroup &&
-      !ticket.queue &&
-      !ticket.user &&
-      ticket.chatbot &&
-      !isNil(whatsapp.integrationId) &&
-      !ticket.useIntegration
-    ) {
-
-      const integrations = await ShowQueueIntegrationService(
-        whatsapp.integrationId,
-        companyId
-      );
-
-      await handleMessageIntegration(
-        msg,
-        wbot,
-        integrations,
-        ticket,
-        companyId,
-        isMenu
-      );
-
-      return;
-    }
+    // integração flowbuilder será movida para depois da declaração de isFirstMsg
 
     //openai na fila
     if (
@@ -2804,6 +2705,46 @@ const handleMessage = async (
       },
       order: [["id", "DESC"]]
     });
+
+    //integraçao na conexao
+    console.log('🔍 [DEBUG] Verificando condições para integração na conexão:', {
+      fromMe: msg.key.fromMe,
+      isGroup: ticket.isGroup,
+      hasQueue: !!ticket.queue,
+      hasUser: !!ticket.user,
+      hasIntegrationId: !isNil(whatsapp.integrationId),
+      useIntegration: ticket.useIntegration
+    });
+    
+    if (
+      !msg.key.fromMe &&
+      !ticket.isGroup &&
+      !ticket.queue &&
+      !ticket.user &&
+      !isNil(whatsapp.integrationId) &&
+      !ticket.useIntegration
+    ) {
+      console.log('🔍 [DEBUG] Condições atendidas! Chamando handleMessageIntegration...');
+
+      const integrations = await ShowQueueIntegrationService(
+        whatsapp.integrationId,
+        companyId
+      );
+
+      await handleMessageIntegration(
+        msg,
+        wbot,
+        integrations,
+        ticket,
+        companyId,
+        isMenu,
+        whatsapp,
+        contact,
+        isFirstMsg
+      );
+
+      return;
+    }
 
     // integração flowbuilder
     if (

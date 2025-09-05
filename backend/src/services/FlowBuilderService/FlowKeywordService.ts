@@ -151,7 +151,8 @@ class FlowKeywordService {
     contact: Contact,
     ticket: Ticket,
     companyId: number,
-    isNewContact: boolean = false
+    isNewContact: boolean = false,
+    whatsappId?: number
   ): Promise<boolean> {
     try {
       // Verificar fluxo de início automático para novos contatos
@@ -188,6 +189,47 @@ class FlowKeywordService {
   }
 
   /**
+   * Processa Welcome flow quando não há palavra-chave específica
+   */
+  static async processWelcomeFlow(
+    contact: Contact,
+    ticket: Ticket,
+    companyId: number,
+    whatsappId: number,
+    flowIdWelcome: number
+  ): Promise<boolean> {
+    try {
+      if (!flowIdWelcome) {
+        return false;
+      }
+
+      const flow = await FlowBuilderModel.findOne({
+        where: {
+          id: flowIdWelcome,
+          company_id: companyId
+        }
+      });
+
+      if (!flow) {
+        return false;
+      }
+
+      const config = flow.config as FlowConfig;
+      const executionCheck = this.canExecuteFlow(config);
+      
+      if (executionCheck.canExecute) {
+        await this.executeFlow(flow, contact, ticket);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Erro ao processar Welcome flow:', error);
+      return false;
+    }
+  }
+
+  /**
    * Executa um fluxo específico
    */
   private static async executeFlow(
@@ -208,16 +250,16 @@ class FlowKeywordService {
       };
 
       // Marcar o ticket como chatbot quando um fluxo é disparado
-      console.log(`[FlowKeywordService] Atualizando ticket ${ticket.id} para chatbot: true, flowWebhook: true`);
+      console.log(`[FlowKeywordService] Atualizando ticket ${ticket.id} para status: 'chatbot', flowWebhook: true`);
       const updateResult = await UpdateTicketService({
         ticketData: {
-          chatbot: true,
+          status: 'chatbot',
           flowWebhook: true
         },
         ticketId: ticket.id,
         companyId: ticket.companyId
       });
-      console.log(`[FlowKeywordService] Ticket atualizado:`, updateResult?.ticket?.chatbot, updateResult?.ticket?.flowWebhook);
+      console.log(`[FlowKeywordService] Ticket atualizado:`, updateResult?.ticket?.status, updateResult?.ticket?.flowWebhook);
 
       await ActionsWebhookService(
         whatsapp.id,

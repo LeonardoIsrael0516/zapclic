@@ -330,7 +330,7 @@ const useStyles = makeStyles((theme) => ({
 
       return (
         <>
-          {ticket.chatbot && (
+          {ticket.status === 'chatbot' && (
             <Tooltip title={i18n.t("ticketsListItem.tooltip.chatbot")}>
               <AccountTree
                 fontSize="small"
@@ -345,7 +345,7 @@ const useStyles = makeStyles((theme) => ({
     } else {
       return (
         <>
-          {ticket.chatbot && (
+          {ticket.status === 'chatbot' && (
             <Tooltip title={i18n.t("ticketsListItem.tooltip.chatbot")}>
               <AccountTree
                 fontSize="small"

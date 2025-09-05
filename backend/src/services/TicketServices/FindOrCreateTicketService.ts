@@ -49,8 +49,10 @@ const FindOrCreateTicketService = async (
     });
 
     if (ticket) {
+      // Preservar status 'chatbot' se já estiver definido
+      const statusToSet = ticket.status === "chatbot" ? "chatbot" : "pending";
       await ticket.update({
-        status: "pending",
+        status: statusToSet,
         userId: null,
         unreadMessages,
         queueId: null,
@@ -84,8 +86,10 @@ const FindOrCreateTicketService = async (
     });
 
     if (ticket) {
+      // Preservar status 'chatbot' se já estiver definido
+      const statusToSet = ticket.status === "chatbot" ? "chatbot" : "pending";
       await ticket.update({
-        status: "pending",
+        status: statusToSet,
         userId: null,
         unreadMessages,
         queueId: null,

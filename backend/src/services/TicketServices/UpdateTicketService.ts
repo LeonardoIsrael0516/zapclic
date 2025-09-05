@@ -54,6 +54,7 @@ const UpdateTicketService = async ({
 }: Request): Promise<Response> => {
 
   try {
+    console.log('[UpdateTicketService] Iniciando com ticketData:', ticketData);
     const { status } = ticketData;
     let { queueId, userId, whatsappId } = ticketData;
     let chatbot: boolean | null = ticketData.chatbot || false;
@@ -61,8 +62,21 @@ const UpdateTicketService = async ({
     let promptId: number | null = ticketData.promptId || null;
     let useIntegration: boolean | null = ticketData.useIntegration || false;
     let integrationId: number | null = ticketData.integrationId || null;
+    
+    // Se o status for 'chatbot', não usar o campo chatbot boolean
+    if (status === 'chatbot') {
+      chatbot = null;
+    }
+    
+    console.log('[UpdateTicketService] Valores processados - status:', status, 'chatbot:', chatbot, 'flowWebhook:', ticketData.flowWebhook);
 
-    const io = getIO();
+    let io;
+    try {
+      io = getIO();
+    } catch (error) {
+      console.log('[UpdateTicketService] Socket IO não disponível, continuando sem emissão de eventos');
+      io = null;
+    }
 
     const key = "userRating";
     const setting = await Setting.findOne({
@@ -262,7 +276,7 @@ const UpdateTicketService = async ({
             }
     }
 
-    await ticket.update({
+    console.log('[UpdateTicketService] Atualizando ticket com:', {
       status,
       queueId,
       userId,
@@ -271,8 +285,26 @@ const UpdateTicketService = async ({
       queueOptionId,
       flowWebhook: ticketData.flowWebhook
     });
+    
+    // Preparar dados de atualização
+    const updateData: any = {
+      status,
+      queueId,
+      userId,
+      whatsappId,
+      queueOptionId,
+      flowWebhook: ticketData.flowWebhook
+    };
+    
+    // Só incluir chatbot se não for null (quando status não for 'chatbot')
+    if (chatbot !== null) {
+      updateData.chatbot = chatbot;
+    }
+    
+    await ticket.update(updateData);
 
     await ticket.reload();
+    console.log('[UpdateTicketService] Ticket após reload - chatbot:', ticket.chatbot, 'flowWebhook:', ticket.flowWebhook);
 
     if (status !== undefined && ["pending"].indexOf(status) > -1) {
       ticketTraking.update({
@@ -295,7 +327,7 @@ const UpdateTicketService = async ({
 
     await ticketTraking.save();
 
-    if (ticket.status !== oldStatus || ticket.user?.id !== oldUserId) {
+    if (io && (ticket.status !== oldStatus || ticket.user?.id !== oldUserId)) {
 
       io.to(`company-${companyId}-${oldStatus}`)
         .to(`queue-${ticket.queueId}-${oldStatus}`)
@@ -306,21 +338,37 @@ const UpdateTicketService = async ({
         });
     }
 
-    io.to(`company-${companyId}-${ticket.status}`)
-      .to(`company-${companyId}-notification`)
-      .to(`queue-${ticket.queueId}-${ticket.status}`)
-      .to(`queue-${ticket.queueId}-notification`)
-      .to(ticketId.toString())
-      .to(`user-${ticket?.userId}`)
-      .to(`user-${oldUserId}`)
-      .emit(`company-${companyId}-ticket`, {
-        action: "update",
-        ticket
-      });
+    if (io) {
+      // Emite para todas as abas relevantes
+      io.to(`company-${companyId}-${ticket.status}`)
+        .to(`company-${companyId}-notification`)
+        .to(`queue-${ticket.queueId}-${ticket.status}`)
+        .to(`queue-${ticket.queueId}-notification`)
+        .to(ticketId.toString())
+        .to(`user-${ticket?.userId}`)
+        .to(`user-${oldUserId}`)
+        .emit(`company-${companyId}-ticket`, {
+          action: "update",
+          ticket
+        });
 
+      // Emite evento adicional para forçar atualização imediata das abas
+      io.to(`company-${companyId}-mainchannel`)
+        .emit(`company-${companyId}-ticket-status-change`, {
+          action: "status-change",
+          ticketId: ticket.id,
+          oldStatus,
+          newStatus: ticket.status,
+          timestamp: new Date().toISOString()
+        });
+    }
+
+    console.log('[UpdateTicketService] Retornando - ticket.chatbot:', ticket.chatbot, 'ticket.flowWebhook:', ticket.flowWebhook);
     return { ticket, oldStatus, oldUserId };
   } catch (err) {
+    console.error('[UpdateTicketService] Erro:', err);
     Sentry.captureException(err);
+    throw err;
   }
 };
 

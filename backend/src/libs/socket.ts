@@ -171,6 +171,18 @@ export const initIO = (httpServer: Server): SocketIO => {
     
     socket.emit("ready");
   });
+
+  // Sistema de heartbeat para manter sincronização das abas
+  setInterval(() => {
+    if (io) {
+      console.log("[Socket] Emitindo heartbeat:", new Date().toISOString());
+      io.emit("heartbeat", {
+        timestamp: new Date().toISOString(),
+        action: "sync"
+      });
+    }
+  }, 10000); // A cada 10 segundos para teste
+
   return io;
 };
 

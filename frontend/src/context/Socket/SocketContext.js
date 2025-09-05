@@ -143,6 +143,9 @@ const SocketManager = {
       })
       
       this.currentSocket.onAny((event, ...args) => {
+        if (event === "heartbeat") {
+          console.log("[SocketManager] Heartbeat recebido:", args);
+        }
         console.debug("Event: ", { socket: this.currentSocket, event, args });
       });
       
