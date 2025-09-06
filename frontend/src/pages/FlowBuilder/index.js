@@ -172,6 +172,12 @@ const FlowBuilder = () => {
   const [searchParam, setSearchParam] = useState("");
   const [contacts, dispatch] = useReducer(reducer, []);
   const [webhooks, setWebhooks] = useState([]);
+  
+  // Debug: Monitor webhooks state changes
+  useEffect(() => {
+    console.log('🔍 Estado webhooks atualizado:', webhooks);
+    console.log('📊 Quantidade no estado:', webhooks.length);
+  }, [webhooks]);
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [selectedWebhookName, setSelectedWebhookName] = useState(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -205,11 +211,16 @@ const FlowBuilder = () => {
     const delayDebounceFn = setTimeout(() => {
       const fetchContacts = async () => {
         try {
+          console.log('🔄 Buscando fluxos...');
           const { data } = await api.get("/flowbuilder");
+          console.log('📊 Dados recebidos da API:', data);
+          console.log('📋 Fluxos encontrados:', data.flows);
+          console.log('📈 Quantidade de fluxos:', data.flows?.length);
           setWebhooks(data.flows);
           dispatch({ type: "LOAD_CONTACTS", payload: data.flows });
           setHasMore(data.hasMore);
         } catch (err) {
+          console.error('❌ Erro ao buscar fluxos:', err);
           toastError(err);
         } finally {
           setLoading(false);
