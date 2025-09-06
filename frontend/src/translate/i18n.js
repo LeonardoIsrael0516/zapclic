@@ -6,8 +6,7 @@ import { messages } from "./languages";
 const detectionOptions = {
 	order: ['navigator', 'localStorage', 'htmlTag', 'path', 'subdomain'],
 	caches: ['localStorage'],
-	lookupLocalStorage: 'i18nextLng',
-	checkWhitelist: true
+	lookupLocalStorage: 'i18nextLng'
 };
 
 i18n
@@ -19,8 +18,8 @@ i18n
 		ns: ["translations"],
 		resources: messages,
 		detection: detectionOptions,
-		whitelist: ['pt', 'en', 'es', 'pt-BR', 'tr'], // idiomas suportados
-		nonExplicitWhitelist: true
+		supportedLngs: ['pt', 'en', 'es', 'pt-BR', 'tr'], // idiomas suportados
+		nonExplicitSupportedLngs: true
 	});
 
 export const changeLanguage = (language) => {
