@@ -706,12 +706,14 @@ const FlowBuilderConfig = () => {
         <HiOutlinePuzzle
           style={{
             color: "#8B5CF6",
-            fontSize: "24px"
+            fontSize: "24px",
+            opacity: 0.5
           }}
         />
       ),
-      name: "Agente de IA",
+      name: "Agente de IA (Em breve)",
       type: "aiAgent",
+      disabled: true,
     },
     {
       icon: (
@@ -1299,9 +1301,17 @@ const FlowBuilderConfig = () => {
                   tooltipTitle={action.name}
                   tooltipOpen
                   tooltipPlacement={"right"}
+                  disabled={action.disabled}
                   onClick={() => {
-                    console.log(action.type);
-                    clickActions(action.type);
+                    if (!action.disabled) {
+                      console.log(action.type);
+                      clickActions(action.type);
+                    }
+                  }}
+                  style={{
+                    opacity: action.disabled ? 0.5 : 1,
+                    cursor: action.disabled ? 'not-allowed' : 'pointer',
+                    pointerEvents: action.disabled ? 'none' : 'auto'
                   }}
                 />
               ))}

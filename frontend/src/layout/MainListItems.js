@@ -41,7 +41,7 @@ import BorderColorIcon from '@material-ui/icons/BorderColor';
 import ToDoList from "../pages/ToDoList/";
 import toastError from "../errors/toastError";
 import { makeStyles } from "@material-ui/core/styles";
-import { AccountTree, AllInclusive, AttachFile, BlurCircular, Chat, DeviceHubOutlined, Schedule } from '@material-ui/icons';
+import { AccountTree, AllInclusive, AttachFile, BlurCircular, Chat, DeviceHubOutlined, Schedule, Memory } from '@material-ui/icons';
 import AndroidIcon from '@material-ui/icons/Android';
 import usePlans from "../hooks/usePlans";
 import Typography from "@material-ui/core/Typography";
@@ -53,11 +53,82 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "-15px",
     marginBottom: "-10px",
   },
+  modernListItem: {
+    margin: '4px 8px',
+    borderRadius: '12px',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      backgroundColor: 'rgba(25, 118, 210, 0.08)',
+      transform: 'translateX(4px)',
+      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+    },
+    '&.Mui-selected': {
+      backgroundColor: 'rgba(25, 118, 210, 0.12)',
+      borderLeft: '4px solid #1976d2',
+      '&:hover': {
+        backgroundColor: 'rgba(25, 118, 210, 0.16)',
+      },
+    },
+  },
+  modernListItemIcon: {
+    minWidth: '40px',
+    color: '#546e7a',
+    transition: 'color 0.3s ease',
+    '& .MuiSvgIcon-root': {
+      fontSize: '20px',
+    },
+  },
+  modernListItemText: {
+    '& .MuiTypography-root': {
+      fontSize: '14px',
+      fontWeight: 500,
+      color: '#37474f',
+      letterSpacing: '0.25px',
+    },
+  },
+  modernSubmenuItem: {
+    margin: '2px 16px 2px 24px',
+    borderRadius: '8px',
+    paddingLeft: '16px',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: 'rgba(25, 118, 210, 0.06)',
+      transform: 'translateX(2px)',
+    },
+  },
+  modernDivider: {
+    margin: '16px 0',
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  disabledItem: {
+    margin: '4px 8px',
+    borderRadius: '12px',
+    opacity: 0.6,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    border: '1px dashed rgba(0, 0, 0, 0.12)',
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    },
+  },
+  comingSoonBadge: {
+    '& .MuiBadge-badge': {
+      fontSize: '7px',
+      height: '14px',
+      minWidth: '14px',
+      borderRadius: '7px',
+      backgroundColor: '#ff9800',
+      color: '#fff',
+      fontWeight: 600,
+      letterSpacing: '0.3px',
+      textTransform: 'uppercase',
+    },
+  },
 }));
 
 
 function ListItemLink(props) {
   const { icon, primary, to, className } = props;
+  const classes = useStyles();
 
   const renderLink = React.useMemo(
     () =>
@@ -69,9 +140,21 @@ function ListItemLink(props) {
 
   return (
     <li>
-      <ListItem button dense component={renderLink} className={className}>
-        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
-        <ListItemText primary={primary} />
+      <ListItem 
+        button 
+        dense 
+        component={renderLink} 
+        className={`${classes.modernListItem} ${className || ''}`}
+      >
+        {icon ? (
+          <ListItemIcon className={classes.modernListItemIcon}>
+            {icon}
+          </ListItemIcon>
+        ) : null}
+        <ListItemText 
+          primary={primary} 
+          className={classes.modernListItemText}
+        />
       </ListItem>
     </li>
   );
@@ -155,7 +238,7 @@ const MainListItems = (props) => {
   const [chats, dispatch] = useReducer(reducer, []);
   const { getPlanCompany } = usePlans();
   
-  const [openFlowsSubmenu, setOpenFlowsSubmenu] = useState(false);
+
 
   const socketManager = useContext(SocketContext);
 
@@ -374,12 +457,14 @@ const MainListItems = (props) => {
                 <ListItem
                   button
                   onClick={() => setOpenCampaignSubmenu((prev) => !prev)}
+                  className={classes.modernListItem}
                 >
-                  <ListItemIcon>
+                  <ListItemIcon className={classes.modernListItemIcon}>
                     <EventAvailableIcon />
                   </ListItemIcon>
                   <ListItemText
                     primary={i18n.t("mainDrawer.listItems.campaigns")}
+                    className={classes.modernListItemText}
                   />
                   {openCampaignSubmenu ? (
                     <ExpandLessIcon />
@@ -394,78 +479,44 @@ const MainListItems = (props) => {
                   unmountOnExit
                 >
                   <List component="div" disablePadding>
-                    <ListItem onClick={() => history.push("/campaigns")} button>
-                      <ListItemIcon>
+                    <ListItem
+                      onClick={() => history.push("/campaigns")}
+                      button
+                      className={classes.modernSubmenuItem}
+                    >
+                      <ListItemIcon className={classes.modernListItemIcon}>
                         <ListIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Listagem" />
+                      <ListItemText primary="Listagem" className={classes.modernListItemText} />
                     </ListItem>
                     <ListItem
                       onClick={() => history.push("/contact-lists")}
                       button
+                      className={classes.modernSubmenuItem}
                     >
-                      <ListItemIcon>
+                      <ListItemIcon className={classes.modernListItemIcon}>
                         <PeopleIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Listas de Contatos" />
+                      <ListItemText primary="Listas de Contatos" className={classes.modernListItemText} />
                     </ListItem>
                     <ListItem
                       onClick={() => history.push("/campaigns-config")}
                       button
+                      className={classes.modernSubmenuItem}
                     >
-                      <ListItemIcon>
+                      <ListItemIcon className={classes.modernListItemIcon}>
                         <SettingsOutlinedIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Configurações" />
+                      <ListItemText primary="Configurações" className={classes.modernListItemText} />
                     </ListItem>
                   </List>
                 </Collapse>
                 {/* Flow builder */}
-                <ListItem
-                    button
-                    onClick={() => setOpenFlowsSubmenu((prev) => !prev)}
-                >
-                  <ListItemIcon>
-                    <AccountTree />
-                  </ListItemIcon>
-                  <ListItemText
-                      primary={i18n.t("mainDrawer.listItems.flows")}
-                  />
-                  {openCampaignSubmenu ? (
-                      <ExpandLessIcon />
-                  ) : (
-                      <ExpandMoreIcon />
-                  )}
-                </ListItem>
-
-                <Collapse
-                    style={{ paddingLeft: 15 }}
-                    in={openFlowsSubmenu}
-                    timeout="auto"
-                    unmountOnExit
-                >
-                  <List component="div" disablePadding>
-                    <ListItem
-                        onClick={() => history.push("/phrase-lists")}
-                        button
-                    >
-                      <ListItemIcon>
-                        <EventAvailableIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Campanha" />
-                    </ListItem>
-
-                    <ListItem
-                        onClick={() => history.push("/flowbuilders")}
-                        button
-                    >
-                      <ListItemIcon>
-                        <ShapeLine />
-                      </ListItemIcon>
-                      <ListItemText primary="Conversa" />
-                    </ListItem>
-                  </List>
-                </Collapse>
+                <ListItemLink
+                  to="/flowbuilders"
+                  primary={i18n.t("mainDrawer.listItems.flows")}
+                  icon={<AccountTree />}
+                />
               </>
             )}
 
@@ -483,11 +534,28 @@ const MainListItems = (props) => {
                   primary={i18n.t("mainDrawer.listItems.prompts")}
                   icon={<AllInclusive />}
                 />
-                <ListItemLink
-                   to="/aiagents"
-                   primary="Agentes de IA"
-                   icon={<AndroidIcon />}
-                 />
+                <ListItem 
+                  button 
+                  dense 
+                  disabled 
+                  className={classes.disabledItem}
+                >
+                  <ListItemIcon className={classes.modernListItemIcon}>
+                    <Memory />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                         <span>Agentes de IA  </span>
+                        <Badge 
+                          badgeContent="Em breve" 
+                          className={classes.comingSoonBadge}
+                        />
+                      </div>
+                    }
+                    className={classes.modernListItemText}
+                  />
+                </ListItem>
               </>
             )}
 
