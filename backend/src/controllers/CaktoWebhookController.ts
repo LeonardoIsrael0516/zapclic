@@ -161,7 +161,7 @@ export const testWebhook = async (
     message: "✅ Webhook Cakto funcionando perfeitamente!",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
-    port: process.env.PORT || "8080",
+    port: process.env.PORT || "4000",
     endpoints: {
       test: "/cakto/webhook/test (GET)",
       webhook_test: "/cakto/webhook/test (POST)",

@@ -15,7 +15,7 @@ console.log('5. Copie o token e substitua no arquivo de teste');
 console.log('');
 
 // Conecta usando o mesmo padrão do frontend
-const socket = io('http://localhost:8080', {
+const socket = io('http://localhost:4000', {
   transports: ['polling'],
   pingTimeout: 18000,
   pingInterval: 18000,

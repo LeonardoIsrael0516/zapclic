@@ -2,8 +2,8 @@ const io = require('socket.io-client');
 const axios = require('axios');
 
 // Configurações
-const BACKEND_URL = 'http://192.168.3.24:8080';
-const API_URL = 'http://192.168.3.24:8080';
+const BACKEND_URL = 'http://192.168.3.24:4000';
+const API_URL = 'http://192.168.3.24:4000';
 
 // Token de teste - SUBSTITUA pelo token real do localStorage
 const TOKEN = 'SEU_TOKEN_AQUI';

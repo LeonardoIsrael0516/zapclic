@@ -6,7 +6,7 @@ async function testFlowImport() {
   try {
     // Primeiro, fazer login para obter o token
     console.log('Fazendo login...');
-    const loginResponse = await axios.post('http://localhost:8080/auth/login', {
+    const loginResponse = await axios.post('http://localhost:4000/auth/login', {
       email: 'admin@admin.com',
       password: '123456'
     });
@@ -16,7 +16,7 @@ async function testFlowImport() {
     
     // Configurar axios com o token
     const api = axios.create({
-      baseURL: 'http://localhost:8080',
+      baseURL: 'http://localhost:4000',
       headers: {
         'Authorization': `Bearer ${token}`
       }

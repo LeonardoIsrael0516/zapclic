@@ -12,7 +12,7 @@ const TOKEN = 'SEU_TOKEN_AQUI'; // COLE SEU TOKEN AQUI
 console.log('🔌 Testando conexão com token do frontend...');
 console.log('📋 Token configurado:', TOKEN.substring(0, 20) + '...');
 
-const socket = io('http://192.168.3.24:8080', {
+const socket = io('http://192.168.3.24:4000', {
   transports: ['polling'],
   pingTimeout: 18000,
   pingInterval: 18000,

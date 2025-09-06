@@ -62,7 +62,7 @@ app.post("/cakto/webhook", async (req, res) => {
     console.log(`Processando: ${data.customer.name} (${data.customer.email}) - R$ ${data.amount}`);
     
     // Fazer proxy para o backend
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:4000";
     const response = await axios.post(`${backendUrl}/cakto/webhook/process`, {
       amount: data.amount,
       customer: data.customer,
@@ -108,7 +108,7 @@ app.post("/cakto/webhook/test", async (req, res) => {
     const { data } = payload;
     
     // Fazer proxy para o backend
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:4000";
     const response = await axios.post(`${backendUrl}/cakto/webhook/process`, {
       amount: data.amount,
       customer: data.customer,
@@ -150,7 +150,7 @@ app.get("/cakto/webhook/test", (req, res) => {
     message: "🚀 Webhook Cakto funcionando via frontend!",
     timestamp: new Date().toISOString(),
     frontend_server: "Express proxy",
-    backend_url: process.env.REACT_APP_BACKEND_URL || "http://localhost:8080"
+    backend_url: process.env.REACT_APP_BACKEND_URL || "http://localhost:4000"
   });
 });
 
