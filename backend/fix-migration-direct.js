@@ -1,8 +1,25 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const sequelize_1 = require("sequelize");
-module.exports = {
-    
+const fs = require('fs');
+const path = require('path');
+
+console.log('🔧 Corrigindo migração diretamente...');
+
+// Caminho para a migração compilada
+const migrationPath = path.join(__dirname, 'dist', 'database', 'migrations', '20250111140000-add-missing-columns-flowbuilder.js');
+
+// Verificar se o arquivo existe
+if (!fs.existsSync(migrationPath)) {
+  console.log('❌ Arquivo de migração compilado não encontrado:', migrationPath);
+  console.log('📝 Execute primeiro: npm run build');
+  process.exit(1);
+}
+
+// Ler o conteúdo atual
+let content = fs.readFileSync(migrationPath, 'utf8');
+
+console.log('📋 Arquivo de migração encontrado');
+
+// Substituir a função up para ser mais robusta
+const newUpFunction = `
   up: async (queryInterface) => {
     try {
       const tableDescription = await queryInterface.describeTable("FlowBuilders");
@@ -65,29 +82,20 @@ module.exports = {
       }
       throw error;
     }
-  },));
-        }
-        // Adicionar variables apenas se não existir
-        if (!tableDescription.variables) {
-            promises.push(queryInterface.addColumn("FlowBuilders", "variables", {
-                type: sequelize_1.DataTypes.JSON,
-                allowNull: true
-            }));
-        }
-        // Adicionar config apenas se não existir
-        if (!tableDescription.config) {
-            promises.push(queryInterface.addColumn("FlowBuilders", "config", {
-                type: sequelize_1.DataTypes.JSON,
-                allowNull: true
-            }));
-        }
-        return Promise.all(promises);
-    },
-    down: (queryInterface) => {
-        return Promise.all([
-            queryInterface.removeColumn("FlowBuilders", "company_id"),
-            queryInterface.removeColumn("FlowBuilders", "variables"),
-            queryInterface.removeColumn("FlowBuilders", "config")
-        ]);
-    }
-};
+  },`;
+
+// Encontrar e substituir a função up
+const upRegex = /up:\s*async\s*\([^)]*\)\s*=>\s*{[^}]*(?:{[^}]*}[^}]*)*}/;
+if (upRegex.test(content)) {
+  content = content.replace(upRegex, newUpFunction);
+  
+  // Escrever o arquivo corrigido
+  fs.writeFileSync(migrationPath, content);
+  
+  console.log('✅ Migração corrigida com sucesso!');
+  console.log('📝 Agora execute: npx sequelize-cli db:migrate');
+} else {
+  console.log('❌ Não foi possível encontrar a função up na migração');
+  console.log('📋 Conteúdo atual:');
+  console.log(content.substring(0, 500) + '...');
+}
