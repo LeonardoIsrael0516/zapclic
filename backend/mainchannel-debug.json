@@ -1,0 +1,32 @@
+[
+  {
+    "channel": "company-1-mainchannel",
+    "event": "company-1-new-message",
+    "data": {
+      "action": "new-message",
+      "ticketId": 123,
+      "messageId": 456,
+      "status": "open",
+      "timestamp": "2025-09-05T16:49:19.429Z"
+    }
+  },
+  {
+    "channel": "company-1-mainchannel",
+    "event": "company-1-ticket",
+    "data": {
+      "action": "update",
+      "ticket": {
+        "id": 123,
+        "status": "open",
+        "contact": {
+          "name": "Teste MainChannel"
+        },
+        "queue": {
+          "id": 1,
+          "name": "Suporte"
+        },
+        "unreadMessages": 2
+      }
+    }
+  }
+]

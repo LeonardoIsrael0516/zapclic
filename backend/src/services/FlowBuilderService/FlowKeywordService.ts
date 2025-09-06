@@ -6,6 +6,11 @@ import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import { Op } from "sequelize";
 
+interface KeywordItem {
+  text: string;
+  type: 'equals' | 'contains';
+}
+
 interface FlowConfig {
   workingHours?: {
     enabled: boolean;
@@ -16,17 +21,22 @@ interface FlowConfig {
   };
   keywords?: {
     enabled: boolean;
-    list: string[];
+    list: (string | KeywordItem)[];
+    matchType?: 'equals' | 'contains';
+  };
+  autoSend?: {
+    enabled: boolean;
   };
   autoStart?: {
     enabled: boolean;
     welcomeMessage: string;
   };
+  whatsappId?: string | number;
 }
 
 interface FlowKeywordMatch {
   flowId: number;
-  keyword: string;
+  keyword: string | KeywordItem;
   config: FlowConfig;
 }
 
@@ -55,7 +65,8 @@ class FlowKeywordService {
    */
   static async findFlowsByKeyword(
     keyword: string, 
-    companyId: number
+    companyId: number,
+    whatsappId?: number
   ): Promise<FlowKeywordMatch[]> {
     try {
       const flows = await FlowBuilderModel.findAll({
@@ -73,12 +84,43 @@ class FlowKeywordService {
         const config = flow.config as FlowConfig;
         
         if (config?.keywords?.enabled && config.keywords.list?.length > 0) {
+          // Verificar se o fluxo está configurado para este WhatsApp específico
+          if (config.whatsappId && whatsappId) {
+            const configWhatsappId = typeof config.whatsappId === 'string' ? 
+              parseInt(config.whatsappId) : config.whatsappId;
+            
+            if (configWhatsappId !== whatsappId) {
+              console.log(`🔍 [DEBUG] Fluxo ${flow.id} configurado para WhatsApp ${configWhatsappId}, mas mensagem veio do WhatsApp ${whatsappId}`);
+              continue; // Pular este fluxo
+            }
+          }
+          
           // Verifica se a palavra-chave corresponde (case insensitive)
-          const keywordMatch = config.keywords.list.find(
-            k => k.toLowerCase() === keyword.toLowerCase().trim()
-          );
+          const keywordMatch = config.keywords.list.find(k => {
+            const messageText = keyword.toLowerCase().trim();
+            
+            // Suporte para formato antigo (string)
+            if (typeof k === 'string') {
+              return k.toLowerCase() === messageText;
+            }
+            
+            // Suporte para novo formato (objeto)
+            if (typeof k === 'object' && k.text) {
+              const keywordText = k.text.toLowerCase();
+              
+              if (k.type === 'contains') {
+                return messageText.includes(keywordText) || keywordText.includes(messageText);
+              } else {
+                // Default para 'equals'
+                return keywordText === messageText;
+              }
+            }
+            
+            return false;
+          });
 
           if (keywordMatch) {
+            console.log(`🔍 [DEBUG] Palavra-chave encontrada no fluxo ${flow.id}: ${JSON.stringify(keywordMatch)}`);
             matches.push({
               flowId: flow.id,
               keyword: keywordMatch,
@@ -96,10 +138,11 @@ class FlowKeywordService {
   }
 
   /**
-   * Busca fluxos com início automático ativado para uma empresa
+   * Busca fluxos com envio automático ativado para uma empresa
    */
   static async findAutoStartFlows(companyId: number): Promise<FlowBuilderModel[]> {
     try {
+      console.log(`🔍 [DEBUG] Buscando fluxos autoSend para company ${companyId}`);
       const flows = await FlowBuilderModel.findAll({
         where: {
           company_id: companyId,
@@ -109,12 +152,19 @@ class FlowKeywordService {
         }
       });
 
-      return flows.filter(flow => {
+      console.log(`🔍 [DEBUG] Encontrados ${flows.length} fluxos com config`);
+      
+      const autoSendFlows = flows.filter(flow => {
         const config = flow.config as FlowConfig;
-        return config?.autoStart?.enabled === true;
+        const hasAutoSend = config?.autoSend?.enabled === true;
+        console.log(`🔍 [DEBUG] Fluxo ${flow.id} (${flow.name}) - autoSend: ${hasAutoSend}`);
+        return hasAutoSend;
       });
+      
+      console.log(`🔍 [DEBUG] Total de fluxos autoSend encontrados: ${autoSendFlows.length}`);
+      return autoSendFlows;
     } catch (error) {
-      console.error('Erro ao buscar fluxos de início automático:', error);
+      console.error('Erro ao buscar fluxos de envio automático:', error);
       return [];
     }
   }
@@ -157,11 +207,18 @@ class FlowKeywordService {
     try {
       // Verificar fluxo de início automático para novos contatos
       if (isNewContact) {
+        // Verificar se o ticket já está em modo chatbot para evitar execução múltipla
+        if (ticket.chatbot) {
+          console.log(`🔍 [DEBUG] Ticket ${ticket.id} já está em modo chatbot, pulando autoSend`);
+          return false;
+        }
+        
         const autoStartFlows = await this.findAutoStartFlows(companyId);
         for (const flow of autoStartFlows) {
           const config = flow.config as FlowConfig;
           const executionCheck = this.canExecuteFlow(config);
           if (executionCheck.canExecute) {
+            console.log(`🔍 [DEBUG] Executando fluxo autoSend ${flow.id} (${flow.name}) para novo contato`);
             await this.executeFlow(flow, contact, ticket);
             return true;
           }
@@ -169,15 +226,20 @@ class FlowKeywordService {
       }
 
       // Verificar fluxos por palavra-chave
-      const keywordMatches = await this.findFlowsByKeyword(messageBody, companyId);
+      const keywordMatches = await this.findFlowsByKeyword(messageBody, companyId, whatsappId);
+      console.log(`🔍 [DEBUG] Encontrados ${keywordMatches.length} matches de palavra-chave para WhatsApp ${whatsappId}`);
+      
       for (const match of keywordMatches) {
         const executionCheck = this.canExecuteFlow(match.config);
         if (executionCheck.canExecute) {
           const flow = await FlowBuilderModel.findByPk(match.flowId);
           if (flow) {
+            console.log(`🔍 [DEBUG] Executando fluxo ${flow.id} (${flow.name}) para palavra-chave`);
             await this.executeFlow(flow, contact, ticket);
             return true;
           }
+        } else {
+          console.log(`🔍 [DEBUG] Fluxo ${match.flowId} não pode ser executado:`, executionCheck);
         }
       }
 
@@ -251,15 +313,18 @@ class FlowKeywordService {
 
       // Marcar o ticket como chatbot quando um fluxo é disparado
       console.log(`[FlowKeywordService] Atualizando ticket ${ticket.id} para status: 'chatbot', flowWebhook: true`);
-      const updateResult = await UpdateTicketService({
-        ticketData: {
+      try {
+        // Atualizar diretamente o ticket
+        await ticket.update({
           status: 'chatbot',
+          chatbot: true,
           flowWebhook: true
-        },
-        ticketId: ticket.id,
-        companyId: ticket.companyId
-      });
-      console.log(`[FlowKeywordService] Ticket atualizado:`, updateResult?.ticket?.status, updateResult?.ticket?.flowWebhook);
+        });
+        console.log(`[FlowKeywordService] Ticket atualizado: chatbot ${ticket.chatbot}`);
+      } catch (error) {
+        console.log(`[FlowKeywordService] Erro ao atualizar ticket (continuando execução do fluxo):`, error.message);
+        // Continua a execução do fluxo mesmo se não conseguir atualizar o ticket
+      }
 
       await ActionsWebhookService(
         whatsapp.id,
@@ -284,4 +349,5 @@ class FlowKeywordService {
   }
 }
 
+export { FlowKeywordService };
 export default FlowKeywordService;

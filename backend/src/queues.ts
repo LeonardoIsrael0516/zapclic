@@ -318,7 +318,7 @@ async function handleVerifyCampaigns(job) {
       const scheduledAt = moment(campaign.scheduledAt);
       const delay = scheduledAt.diff(now, "milliseconds");
       logger.info(
-        `[📌] - Campanha enviada para a fila de processamento: Campanha=${campaign.id}, Delay Inicial=${delay}`
+        `[📌] - Campanha enviada para a queue de processamento: Campanha=${campaign.id}, Delay Inicial=${delay}`
       );
       campaignQueue.add(
         "ProcessCampaign",
@@ -1013,7 +1013,7 @@ export async function startQueueProcess() {
         }
       }
     } catch (error) {
-      logger.error('[🚨] - Erro na limpeza da fila de campanhas:', error);
+      logger.error('[🚨] - Erro na limpeza da queue de campanhas:', error);
     }
   }
   setInterval(cleanupCampaignQueue, 6 * 3600 * 1000);
@@ -1022,7 +1022,7 @@ export async function startQueueProcess() {
     const jobCounts = await campaignQueue.getJobCounts();
     const memoryUsage = process.memoryUsage();
 
-    logger.info('[📌] - Status da fila de campanhas:', {
+    logger.info('[📌] - Status da queue de campanhas:', {
       jobs: jobCounts,
       memory: {
         heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + 'MB',

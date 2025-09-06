@@ -541,7 +541,7 @@ export default function Options(props) {
           </FormControl>
         </Grid>
 		
-		{/* ENVIAR SAUDAÇÃO QUANDO HOUVER SOMENTE 1 FILA */}
+		{/* ENVIAR SAUDAÇÃO QUANDO HOUVER SOMENTE 1 SETOR */}
         <Grid xs={12} sm={6} md={4} item>
           <FormControl className={classes.selectContainer}>
             <InputLabel id="sendGreetingMessageOneQueues-label">

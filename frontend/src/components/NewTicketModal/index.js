@@ -325,7 +325,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
           <Grid style={{ width: 300 }} container spacing={2}>
             {/* CONTATO */}
             {renderContactAutocomplete()}
-            {/* FILA */}
+            {/* SETOR */}
             <Grid xs={12} item>
               <Select
                 required

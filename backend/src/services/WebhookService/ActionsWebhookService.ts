@@ -90,16 +90,18 @@ export const ActionsWebhookService = async (
     const connectStatic = connects;
     if (numberPhrase === "") {
       const nameInput = details.inputs.find(item => item.keyValue === "nome");
-      nameInput.data.split(",").map(dataN => {
-        const lineToData = details.keysFull.find(item => item === dataN);
-        let sumRes = "";
-        if (!lineToData) {
-          sumRes = dataN;
-        } else {
-          sumRes = constructJsonLine(lineToData, dataWebhook);
-        }
-        createFieldJsonName = createFieldJsonName + sumRes;
-      });
+      if (nameInput && nameInput.data) {
+        nameInput.data.split(",").map(dataN => {
+          const lineToData = details.keysFull.find(item => item === dataN);
+          let sumRes = "";
+          if (!lineToData) {
+            sumRes = dataN;
+          } else {
+            sumRes = constructJsonLine(lineToData, dataWebhook);
+          }
+          createFieldJsonName = createFieldJsonName + sumRes;
+        });
+      }
     } else {
       createFieldJsonName = numberPhrase.name;
     }
@@ -111,7 +113,8 @@ export const ActionsWebhookService = async (
         item => item.keyValue === "celular"
       );
 
-      numberInput.data.split(",").map(dataN => {
+      if (numberInput && numberInput.data) {
+        numberInput.data.split(",").map(dataN => {
         const lineToDataNumber = details.keysFull.find(item => item === dataN);
         let createFieldJsonNumber = "";
         if (!lineToDataNumber) {
@@ -124,7 +127,8 @@ export const ActionsWebhookService = async (
         }
 
         numberClient = numberClient + createFieldJsonNumber;
-      });
+        });
+      }
     } else {
       numberClient = numberPhrase.number;
     }
@@ -144,7 +148,8 @@ export const ActionsWebhookService = async (
 
     if (numberPhrase === "") {
       const emailInput = details.inputs.find(item => item.keyValue === "email");
-      emailInput.data.split(",").map(dataN => {
+      if (emailInput && emailInput.data) {
+        emailInput.data.split(",").map(dataN => {
         const lineToDataEmail = details.keysFull.find(item =>
           item.endsWith("email")
         );
@@ -157,7 +162,8 @@ export const ActionsWebhookService = async (
         }
 
         createFieldJsonEmail = createFieldJsonEmail + sumRes;
-      });
+        });
+      }
     } else {
       createFieldJsonEmail = numberPhrase.email;
     }
@@ -211,10 +217,13 @@ export const ActionsWebhookService = async (
         const otherNode = nodes.filter(node => node.id === next)[0];
         if (otherNode) {
           nodeSelected = otherNode;
+        } else {
+          console.log("Node not found, skipping...");
+          continue;
         }
       }
 
-      if (nodeSelected.type === "message") {
+      if (nodeSelected && nodeSelected.type === "message") {
 
         let msg;
 
@@ -237,14 +246,14 @@ export const ActionsWebhookService = async (
 
 
         //TESTE BOTÃO
-        //await SendMessageFlow(whatsapp, {
-        //  number: numberClient,
-        //  body: msg.body
-        //} )
+        await SendMessageFlow(whatsapp, {
+          number: numberClient,
+          body: msg.body
+        })
         await intervalWhats("1");
       }
       console.log("273");
-      if (nodeSelected.type === "typebot") {
+      if (nodeSelected && nodeSelected.type === "typebot") {
         console.log("275");
         const wbot = getWbot(whatsapp.id);
         await typebotListener({
@@ -255,7 +264,7 @@ export const ActionsWebhookService = async (
         });
       }
 
-      if (nodeSelected.type === "openai") {
+      if (nodeSelected && nodeSelected.type === "openai") {
         let {
           name,
           prompt,
@@ -306,7 +315,7 @@ export const ActionsWebhookService = async (
         );
       }
 
-      if (nodeSelected.type === "question") {
+      if (nodeSelected && nodeSelected.type === "question") {
         const webhook = ticket?.dataWebhook;
         const variables = ticket?.dataWebhook?.variables;
 
@@ -342,7 +351,7 @@ export const ActionsWebhookService = async (
         break;
       }
 
-      if (nodeSelected.type === "ticket") {
+      if (nodeSelected && nodeSelected.type === "ticket") {
         /*const queueId = nodeSelected.data?.data?.id || nodeSelected.data?.id;
         const queue = await ShowQueueService(queueId, companyId);
 
@@ -400,7 +409,7 @@ export const ActionsWebhookService = async (
             }
           });
 
-          // Lógica para enviar posição da fila de atendimento
+          // Lógica para enviar posição do setor de atendimento
           const qtd = count.count === 0 ? 1 : count.count;
 
           const msgFila = `${settings.sendQueuePositionMessage} *${qtd}*`;
@@ -426,14 +435,14 @@ export const ActionsWebhookService = async (
         }*/
       }
 
-      if (nodeSelected.type === "interval") {
+      if (nodeSelected && nodeSelected.type === "interval") {
         // Processar nó de intervalo
         const intervalSeconds = nodeSelected.data.sec || "1";
         console.log(`⏰ Executando intervalo de ${intervalSeconds} segundos`);
         await intervalWhats(intervalSeconds);
       }
 
-      if (nodeSelected.type === "singleBlock") {
+      if (nodeSelected && nodeSelected.type === "singleBlock") {
         for (var iLoc = 0; iLoc < nodeSelected.data.seq.length; iLoc++) {
           const elementNowSelected = nodeSelected.data.seq[iLoc];
 
@@ -569,7 +578,7 @@ export const ActionsWebhookService = async (
       }
 
       let isRandomizer: boolean;
-      if (nodeSelected.type === "randomizer") {
+      if (nodeSelected && nodeSelected.type === "randomizer") {
         const selectedRandom = randomizarCaminho(
           nodeSelected.data.percent / 100
         );
@@ -591,7 +600,7 @@ export const ActionsWebhookService = async (
 
       let isMenu: boolean;
 
-      if (nodeSelected.type === "menu") {
+      if (nodeSelected && nodeSelected.type === "menu") {
         console.log(650, "menu");
         if (pressKey) {
           const filterOne = connectStatic.filter(

@@ -1219,7 +1219,7 @@ const verifyQueue = async (
       companyId: ticket.companyId
     });
 
-    /* Tratamento para envio de mensagem quando a fila está fora do expediente */
+    /* Tratamento para envio de mensagem quando o setor está fora do expediente */
     if (choosenQueue.options.length === 0) {
       const queue = await Queue.findByPk(choosenQueue.id);
       const { schedules }: any = queue;
@@ -1292,6 +1292,54 @@ const verifyQueue = async (
           integrationId: integrations.id
         });
         // return;
+      }
+
+      // Sempre verificar se há fluxo flowbuilder configurado
+      // independente da configuração da integração na queue
+      if (!msg.key.fromMe && !ticket.isGroup) {
+        const whatsapp = await ShowWhatsAppService(wbot.id!, companyId);
+        const body = getBodyMessage(msg);
+        
+        console.log('🔍 [DEBUG] Verificando fluxo flowbuilder:', {
+          whatsappId: whatsapp.id,
+          ticketId: ticket.id,
+          body: body
+        });
+        
+        // Primeiro tentar processar palavras-chave
+        const keywordFlowTriggered = await FlowKeywordService.processMessage(
+          body,
+          contact,
+          ticket,
+          companyId,
+          false,
+          whatsapp.id
+        );
+        
+        if (keywordFlowTriggered) {
+          console.log('🔍 [DEBUG] Fluxo flowbuilder disparado por palavra-chave');
+          return;
+        }
+        
+        // Se não houver palavra-chave e há flowIdWelcome, executar welcome flow
+        if (whatsapp.flowIdWelcome) {
+          console.log('🔍 [DEBUG] Executando fluxo flowbuilder welcome:', {
+            flowIdWelcome: whatsapp.flowIdWelcome
+          });
+          
+          const welcomeFlowTriggered = await FlowKeywordService.processWelcomeFlow(
+            contact,
+            ticket,
+            companyId,
+            whatsapp.id,
+            whatsapp.flowIdWelcome
+          );
+          
+          if (welcomeFlowTriggered) {
+            console.log('🔍 [DEBUG] Fluxo flowbuilder welcome executado com sucesso');
+            return;
+          }
+        }
       }
 
       //inicia integração openai
@@ -1791,6 +1839,7 @@ const flowbuilderIntegration = async (
     contactId: contact.id,
     ticketId: ticket.id,
     companyId,
+    whatsappId: ticket.whatsappId,
     isFirstMsg: isFirstMsg ? true : false
   });
   
@@ -1799,7 +1848,8 @@ const flowbuilderIntegration = async (
     contact,
     ticket,
     companyId,
-    isFirstMsg ? true : false
+    isFirstMsg ? true : false,
+    ticket.whatsappId
   );
   
   console.log('🔍 [DEBUG] FlowKeywordService.processMessage resultado:', flowTriggered);
@@ -1921,6 +1971,12 @@ const flowbuilderIntegration = async (
     });
 
     if (flow) {
+      console.log('🔍 [DEBUG] Executando flowIdNotPhrase sem integração:', {
+        whatsappId: whatsapp.id,
+        flowIdNotPhrase: whatsapp.flowIdNotPhrase,
+        ticketId: ticket.id
+      });
+      
       const nodes: INodes[] = flow.flow["nodes"];
       const connections: IConnections[] = flow.flow["connections"];
 
@@ -2141,36 +2197,6 @@ export const handleMessageIntegration = async (
     console.log("entrou no typebot");
     // await typebots(ticket, msg, wbot, queueIntegration);
     await typebotListener({ ticket, msg, wbot, typebot: queueIntegration });
-  } else if(queueIntegration.type === "flowbuilder") {
-    if (!isMenu) {
-
-      await flowbuilderIntegration(
-        msg,
-        wbot,
-        companyId,
-        queueIntegration,
-        ticket,
-        contact,
-        isFirstMsg
-      );
-    } else {
-
-      if (
-        !isNaN(parseInt(ticket.lastMessage)) &&
-        ticket.status !== "open" &&
-        ticket.status !== "closed"
-      ) {
-        await flowBuilderQueue(
-          ticket,
-          msg,
-          wbot,
-          whatsapp,
-          companyId,
-          contact,
-          isFirstMsg
-        );
-      }
-    }
   }
 };
 
@@ -2391,6 +2417,37 @@ const handleMessage = async (
       await verifyMessage(msg, ticket, contact);
     }
 
+    // Verificar palavras-chave do FlowBuilder sempre que uma mensagem for recebida
+    if (!msg.key.fromMe && bodyMessage && bodyMessage.trim() !== "") {
+      console.log('🔍 [DEBUG] Verificando palavras-chave na função handleMessage:', {
+        body: bodyMessage,
+        contactId: contact.id,
+        ticketId: ticket.id,
+        companyId: companyId,
+        whatsappId: whatsapp.id
+      });
+      
+      try {
+        const flowTriggered = await FlowKeywordService.processMessage(
+          bodyMessage,
+          contact,
+          ticket,
+          companyId,
+          false, // isFirstMsg
+          whatsapp.id
+        );
+        
+        console.log('🔍 [DEBUG] FlowKeywordService resultado na handleMessage:', flowTriggered);
+        
+        if (flowTriggered) {
+          console.log('✅ [DEBUG] Fluxo disparado com sucesso na handleMessage');
+          return; // Se o fluxo foi disparado, não continuar processamento
+        }
+      } catch (error) {
+        console.error('❌ [ERROR] Erro ao processar FlowKeywordService na handleMessage:', error);
+      }
+    }
+
     const currentSchedule = await VerifyCurrentSchedule(companyId);
     const scheduleType = await Setting.findOne({
       where: {
@@ -2431,7 +2488,7 @@ const handleMessage = async (
 
         if (scheduleType.value === "queue" && ticket.queueId !== null) {
           /**
-           * Tratamento para envio de mensagem quando a fila está fora do expediente
+           * Tratamento para envio de mensagem quando o setor está fora do expediente
            */
           const queue = await Queue.findByPk(ticket.queueId);
 
@@ -2632,7 +2689,7 @@ const handleMessage = async (
 
     // integração flowbuilder será movida para depois da declaração de isFirstMsg
 
-    //openai na fila
+    //openai no setor
     if (
       !isGroup &&
       !msg.key.fromMe &&
@@ -2743,35 +2800,49 @@ const handleMessage = async (
         isFirstMsg
       );
 
-      return;
+      // Não fazer return aqui para permitir que as notificações sejam processadas
+      // return;
     }
 
-    // integração flowbuilder
+    // integração flowbuilder - sempre verificar fluxos de autoSend
     if (
       !msg.key.fromMe &&
       !ticket.isGroup &&
       !ticket.queue &&
       !ticket.user &&
-      !isNil(whatsapp.integrationId) &&
       !ticket.useIntegration
     ) {
-
-      const integrations = await ShowQueueIntegrationService(
-        whatsapp.integrationId,
-        companyId
-      );
-
-      await handleMessageIntegration(
-        msg,
-        wbot,
-        integrations,
+      // Verificar fluxos de autoSend mesmo sem integração configurada
+      const flowTriggered = await FlowKeywordService.processMessage(
+        getBodyMessage(msg),
+        contact,
         ticket,
         companyId,
-        isMenu,
-        whatsapp,
-        contact,
-        isFirstMsg
+        isFirstMsg ? true : false,
+        ticket.whatsappId
       );
+      
+      console.log('🔍 [DEBUG] FlowKeywordService.processMessage resultado (sem integração):', flowTriggered);
+      
+      // Se há integração configurada, processar também
+      if (!isNil(whatsapp.integrationId)) {
+        const integrations = await ShowQueueIntegrationService(
+          whatsapp.integrationId,
+          companyId
+        );
+
+        await handleMessageIntegration(
+          msg,
+          wbot,
+          integrations,
+          ticket,
+          companyId,
+          isMenu,
+          whatsapp,
+          contact,
+          isFirstMsg
+        );
+      }
     }
 
     const dontReadTheFirstQuestion = ticket.queue === null;
@@ -2782,7 +2853,7 @@ const handleMessage = async (
       //Fluxo fora do expediente
       if (!msg.key.fromMe && scheduleType && ticket.queueId !== null) {
         /**
-         * Tratamento para envio de mensagem quando a fila está fora do expediente
+         * Tratamento para envio de mensagem quando o setor está fora do expediente
          */
         const queue = await Queue.findByPk(ticket.queueId);
 

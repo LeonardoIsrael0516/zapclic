@@ -35,6 +35,7 @@ import ToDoList from "../pages/ToDoList/";
 import Subscription from "../pages/Subscription/";
 import Files from "../pages/Files/";
 import Prompts from "../pages/Prompts";
+import AIAgents from "../pages/AIAgents";
 import QueueIntegration from "../pages/QueueIntegration";
 import ForgetPassword from "../pages/ForgetPassWord/"; // Reset PassWd
 import CampaignsPhrase from "../pages/CampaignsPhrase";
@@ -97,6 +98,7 @@ const Routes = () => {
                 <Route exact path="/users" component={Users} isPrivate />
                 <Route exact path="/files" component={Files} isPrivate />
                 <Route exact path="/prompts" component={Prompts} isPrivate />
+                <Route exact path="/aiagents" component={AIAgents} isPrivate />
                 <Route
                   exact
                   path="/queue-integration"

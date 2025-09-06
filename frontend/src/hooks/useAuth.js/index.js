@@ -20,7 +20,6 @@ const useAuth = () => {
       const token = localStorage.getItem("token");
       if (token) {
         config.headers["Authorization"] = `Bearer ${JSON.parse(token)}`;
-        setIsAuth(true);
       }
       return config;
     },

@@ -143,7 +143,7 @@ export function PlanManagerForm(props) {
                             />
                         </Grid>
 
-                        {/* FILAS */}
+                        {/* SETORES */}
                         <Grid xs={12} sm={6} md={1} item>
                             <Field
                                 as={TextField}

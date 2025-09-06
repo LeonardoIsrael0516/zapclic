@@ -34,7 +34,9 @@ import forgotsRoutes from "./forgotPasswordRoutes";
 import flowDefaultRoutes from "./flowDefaultRoutes";
 import flowBuilder from "./flowBuilderRoutes";
 import flowCampaignRoutes from "./flowCampaignRoutes";
+import flowExecutionRoutes from "./flowExecutionRoutes";
 import caktoWebhookRoutes from "./caktoWebhookRoutes";
+import aiAgentRoutes from "./aiAgentRoutes";
 const routes = Router();
 
 routes.use(userRoutes);
@@ -69,10 +71,12 @@ routes.use(filesRoutes);
 routes.use(promptRoutes);
 routes.use(queueIntegrationRoutes);
 routes.use(forgotsRoutes);
+routes.use(aiAgentRoutes);
 
 routes.use(flowDefaultRoutes);
 routes.use(flowBuilder)
 routes.use(flowCampaignRoutes)
+routes.use(flowExecutionRoutes);
 routes.use(caktoWebhookRoutes);
 
 export default routes;

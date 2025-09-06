@@ -43,19 +43,20 @@ const reducer = (state, action) => {
   if (action.type === "LOAD_CHATS") {
     const chats = action.payload;
     const newChats = [];
+    const updatedState = [...state];
 
     if (isArray(chats)) {
       chats.forEach((chat) => {
-        const chatIndex = state.findIndex((u) => u.id === chat.id);
+        const chatIndex = updatedState.findIndex((u) => u.id === chat.id);
         if (chatIndex !== -1) {
-          state[chatIndex] = chat;
+          updatedState[chatIndex] = chat;
         } else {
           newChats.push(chat);
         }
       });
     }
 
-    return [...state, ...newChats];
+    return [...updatedState, ...newChats];
   }
 
   if (action.type === "UPDATE_CHATS") {
@@ -63,8 +64,9 @@ const reducer = (state, action) => {
     const chatIndex = state.findIndex((u) => u.id === chat.id);
 
     if (chatIndex !== -1) {
-      state[chatIndex] = chat;
-      return [...state];
+      const updatedState = [...state];
+      updatedState[chatIndex] = chat;
+      return updatedState;
     } else {
       return [chat, ...state];
     }
@@ -73,11 +75,7 @@ const reducer = (state, action) => {
   if (action.type === "DELETE_CHAT") {
     const chatId = action.payload;
 
-    const chatIndex = state.findIndex((u) => u.id === chatId);
-    if (chatIndex !== -1) {
-      state.splice(chatIndex, 1);
-    }
-    return [...state];
+    return state.filter((chat) => chat.id !== chatId);
   }
 
   if (action.type === "RESET") {
@@ -147,10 +145,14 @@ export default function ChatPopover() {
     socket.on(`company-${companyId}-chat`, (data) => {
       if (data.action === "new-message") {
         dispatch({ type: "CHANGE_CHAT", payload: data });
-        const userIds = data.newMessage.chat.users.map(userObj => userObj.userId);
+        
+        // Verificação de segurança para evitar erro de propriedade undefined
+        if (data.newMessage && data.newMessage.chat && data.newMessage.chat.users) {
+          const userIds = data.newMessage.chat.users.map(userObj => userObj.userId);
 
-        if (userIds.includes(user.id) && data.newMessage.senderId !== user.id) {
-          soundAlertRef.current();
+          if (userIds.includes(user.id) && data.newMessage.senderId !== user.id) {
+            soundAlertRef.current();
+          }
         }
       }
       if (data.action === "update") {

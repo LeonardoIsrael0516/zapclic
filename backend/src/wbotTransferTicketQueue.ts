@@ -13,7 +13,7 @@ export const TransferTicketQueue = async (): Promise<void> => {
 
   const io = getIO();
 
-  //buscar os tickets que em pendentes e sem fila
+  //buscar os tickets que em pendentes e sem setor
   const tickets = await Ticket.findAll({
     where: {
       status: "pending",
@@ -71,7 +71,7 @@ export const TransferTicketQueue = async (): Promise<void> => {
           traking: "created ticket 33"
         });
 
-      logger.info(`Transferencia de ticket automatica ticket id ${ticket.id} para a fila ${wpp.transferQueueId}`);
+      logger.info(`Transferencia de ticket automatica ticket id ${ticket.id} para o setor ${wpp.transferQueueId}`);
 
     }
 

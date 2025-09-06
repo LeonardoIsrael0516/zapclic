@@ -103,7 +103,7 @@ class CaktoIntegrationService {
     // Criar configurações padrão da empresa
     await this.createDefaultSettings(company.id);
 
-    // Criar fila padrão
+    // Criar setor padrão
     await this.createDefaultQueue(company.id);
 
     return { company, user };
@@ -142,7 +142,7 @@ class CaktoIntegrationService {
       orderQueue: 1
     });
 
-    logger.info(`Fila padrão criada para empresa ${companyId}`);
+    logger.info(`Setor padrão criado para empresa ${companyId}`);
   }
 
   async processPayment(paymentData: CaktoPaymentData): Promise<{

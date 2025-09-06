@@ -169,9 +169,11 @@ const NotificationsPopOver = (volume) => {
 		});
 
 		return () => {
-			socket.disconnect();
+			socket.off("ready");
+			socket.off(`company-${user.companyId}-ticket`);
+			socket.off(`company-${user.companyId}-appMessage`);
 		};
-	}, [user, showPendingTickets, socketManager]);
+	}, [user.companyId, user?.id, user?.queues, showPendingTickets, socketManager]);
 
 	const handleNotifications = data => {
 		const { message, contact, ticket } = data;

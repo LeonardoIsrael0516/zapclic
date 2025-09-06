@@ -154,7 +154,7 @@ const TicketListItem = ({ ticket }) => {
         <Tooltip
           arrow
           placement="right"
-          title={ticket.queue?.name || "Sem fila"}
+          title={ticket.queue?.name || "Sem setor"}
         >
           <span
             style={{ backgroundColor: ticket.queue?.color || "#7C7C7C" }}
@@ -176,6 +176,16 @@ const TicketListItem = ({ ticket }) => {
               >
                 {ticket.contact.name}
               </Typography>
+              {ticket.unreadMessages > 0 && (
+                <Badge
+                  className={classes.newMessagesCount}
+                  badgeContent={ticket.unreadMessages}
+                  color="secondary"
+                  classes={{
+                    badge: classes.badgeStyle,
+                  }}
+                />
+              )}
               {ticket.status === "closed" && (
                 <Badge
                   className={classes.closedBadge}

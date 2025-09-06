@@ -42,6 +42,7 @@ import ToDoList from "../pages/ToDoList/";
 import toastError from "../errors/toastError";
 import { makeStyles } from "@material-ui/core/styles";
 import { AccountTree, AllInclusive, AttachFile, BlurCircular, Chat, DeviceHubOutlined, Schedule } from '@material-ui/icons';
+import AndroidIcon from '@material-ui/icons/Android';
 import usePlans from "../hooks/usePlans";
 import Typography from "@material-ui/core/Typography";
 import { ShapeLine } from "@mui/icons-material";
@@ -476,11 +477,18 @@ const MainListItems = (props) => {
               />
             )}
             {showOpenAi && (
-              <ListItemLink
-                to="/prompts"
-                primary={i18n.t("mainDrawer.listItems.prompts")}
-                icon={<AllInclusive />}
-              />
+              <>
+                <ListItemLink
+                  to="/prompts"
+                  primary={i18n.t("mainDrawer.listItems.prompts")}
+                  icon={<AllInclusive />}
+                />
+                <ListItemLink
+                   to="/aiagents"
+                   primary="Agentes de IA"
+                   icon={<AndroidIcon />}
+                 />
+              </>
             )}
 
             {showIntegrations && (

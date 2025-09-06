@@ -212,7 +212,6 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                           <MenuItem value="n8n">N8N</MenuItem>
                           <MenuItem value="webhook">WebHooks</MenuItem>
                           <MenuItem value="typebot">Typebot</MenuItem>
-                          <MenuItem value="flowbuilder">Flowbuilder</MenuItem>
                         </Field>
                       </FormControl>
                     </Grid>
@@ -453,22 +452,7 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                       </>
                     )}
 
-                    {(values.type === "flowbuilder") && (
-                      <Grid item xs={12} md={6} xl={6} >
-                        <Field
-                          as={TextField}
-                          label={i18n.t("queueIntegrationModal.form.name")}
-                          autoFocus
-                          name="name"
-                          fullWidth
-                          error={touched.name && Boolean(errors.name)}
-                          helpertext={touched.name && errors.name}
-                          variant="outlined"
-                          margin="dense"
-                          className={classes.textField}
-                        />
-                      </Grid>
-                    )}
+
                   </Grid>
                 </DialogContent>
               </Paper>

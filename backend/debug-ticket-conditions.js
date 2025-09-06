@@ -80,7 +80,7 @@ async function debugTicketConditions() {
     if (!allConditionsMet) {
       console.log('\n💡 Possíveis soluções:');
       if (ticket.queue) {
-        console.log('  - Ticket está em uma fila. Remover da fila ou configurar integração na fila.');
+        console.log('  - Ticket está em um setor. Remover do setor ou configurar integração no setor.');
       }
       if (ticket.user) {
         console.log('  - Ticket está atribuído a um usuário. Desatribuir o ticket.');

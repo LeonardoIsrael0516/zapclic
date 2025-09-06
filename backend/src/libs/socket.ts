@@ -168,6 +168,11 @@ export const initIO = (httpServer: Server): SocketIO => {
         }
       }
     });
+
+    socket.on("joinMainChannel", async () => {
+      logger.info(`joinMainChannel for user ${user.id} company ${user.companyId}`);
+      socket.join(`company-${user.companyId}-mainchannel`);
+    });
     
     socket.emit("ready");
   });

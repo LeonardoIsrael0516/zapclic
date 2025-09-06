@@ -66,7 +66,7 @@ async function testChatbotStatusFix() {
       const statusToSet = testTicket.status === "chatbot" ? "chatbot" : "pending";
       console.log('📊 Status que será definido:', statusToSet);
       
-      // Simular atualização com fila
+      // Simular atualização com setor
       const firstQueue = await Queue.findOne({ where: { companyId: testCompany.id } });
       
       if (firstQueue) {
@@ -101,7 +101,7 @@ async function testChatbotStatusFix() {
         await testTicket.destroy();
         console.log('🧹 Ticket de teste removido');
       } else {
-        console.log('❌ Nenhuma fila encontrada para teste');
+        console.log('❌ Nenhum setor encontrado para teste');
       }
     } else {
       console.log('✅ Ticket com status chatbot encontrado:', {

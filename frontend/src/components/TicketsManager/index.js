@@ -119,15 +119,15 @@ const TicketsManager = () => {
   const [chatbotCount, setChatbotCount] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
 
-  const userQueueIds = user.queues.map((q) => q.id);
-  const [selectedQueueIds, setSelectedQueueIds] = useState(userQueueIds || []);
+  const userQueueIds = user && user.queues ? user.queues.map((q) => q.id) : [];
+  const [selectedQueueIds, setSelectedQueueIds] = useState(userQueueIds);
 
   useEffect(() => {
-    if (user.profile.toUpperCase() === "ADMIN") {
+    if (user && user.profile && user.profile.toUpperCase() === "ADMIN") {
       setShowAllTickets(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user])
 
   const handleSearch = (e) => {
     const searchedTerm = e.target.value.toLowerCase();
@@ -283,6 +283,7 @@ const TicketsManager = () => {
           />
           <TicketsList
             status="pending"
+            showAll={showAllTickets}
             selectedQueueIds={selectedQueueIds}
             updateCount={(val) => setPendingCount(val)}
             style={applyPanelStyle("pending")}

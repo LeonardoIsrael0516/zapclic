@@ -125,38 +125,35 @@ const reducer = (state, action) => {
 
 		const ticketIndex = state.findIndex((t) => t.id === ticket.id);
 		if (ticketIndex !== -1) {
-			state[ticketIndex] = ticket;
-			state.unshift(state.splice(ticketIndex, 1)[0]);
+			// Remove o ticket da posição atual e adiciona no início
+			const newState = state.filter((t) => t.id !== ticket.id);
+			return [ticket, ...newState];
 		} else {
-			state.unshift(ticket);
+			return [ticket, ...state];
 		}
-
-		return [...state];
 	}
 
 	if (action.type === "UPDATE_TICKET_CONTACT") {
 		const contact = action.payload;
-		const ticketIndex = state.findIndex((t) => t.contactId === contact.id);
-		if (ticketIndex !== -1) {
-			state[ticketIndex].contact = contact;
-		}
-		return [...state];
+		return state.map((ticket) => 
+			ticket.contactId === contact.id 
+				? { ...ticket, contact } 
+				: ticket
+		);
 	}
 
 	if (action.type === "DELETE_TICKET") {
 		const ticketId = action.payload;
-		const ticketIndex = state.findIndex((t) => t.id === ticketId);
-		if (ticketIndex !== -1) {
-			state.splice(ticketIndex, 1);
-		}
-
-		return [...state];
+		return state.filter((ticket) => ticket.id !== ticketId);
 	}
 
 	if (action.type === "RESET") {
 		return [];
 	}
+
+	return [...state];
 };
+
 
 const TicketsList = (props) => {
 	const {
@@ -255,9 +252,15 @@ const TicketsList = (props) => {
       return () => {}; 
     }
 
-		const shouldUpdateTicket = (ticket) =>
-			(!ticket.userId || ticket.userId === user?.id || showAll) &&
-			(!ticket.queueId || selectedQueueIds.indexOf(ticket.queueId) > -1);
+		const shouldUpdateTicket = (ticket) => {
+			// Se showAll está ativo, mostra todos os tickets do setor selecionado
+			if (showAll) {
+				return !ticket.queueId || selectedQueueIds.indexOf(ticket.queueId) > -1;
+			}
+			// Caso contrário, mostra apenas tickets sem usuário ou do usuário atual
+			return (!ticket.userId || ticket.userId === user?.id) &&
+				(!ticket.queueId || selectedQueueIds.indexOf(ticket.queueId) > -1);
+		};
 
 		const notBelongsToUserQueues = (ticket) =>
 			ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;

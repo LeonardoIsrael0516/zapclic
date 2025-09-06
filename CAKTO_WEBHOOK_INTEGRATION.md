@@ -212,7 +212,7 @@ O webhook da Cakto envia o seguinte payload:
 
 ### 4. Criação de Recursos Padrão (somente para novas empresas)
 - Configurações padrão do sistema
-- Fila de atendimento padrão
+- Setor de atendimento padrão
 - Usuário administrador
 
 ## Estrutura dos Planos
@@ -234,7 +234,7 @@ INSERT INTO Plans (name, value, users, connections, queues) VALUES
 - **Usuário Admin**: Mesmo nome/email, senha padrão `zapclic123`
 - **Plano**: Baseado no valor pago
 - **Validade**: 30 dias a partir do pagamento
-- **Fila Padrão**: "Atendimento" com cor #1DCC91
+- **Setor Padrão**: "Atendimento" com cor #1DCC91
 - **Configurações**: Padrões do sistema
 
 ### Para Empresa Existente:

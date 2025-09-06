@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useRef, useContext } from "react";
+import React, { useState, useEffect, useReducer, useRef, useContext, useCallback } from "react";
 
 import { isSameDay, parseISO, format } from "date-fns";
 import clsx from "clsx";
@@ -271,18 +271,14 @@ const useStyles = makeStyles((theme) => ({
 const reducer = (state, action) => {
   if (action.type === "LOAD_MESSAGES") {
     const messages = action.payload;
-    const newMessages = [];
-
-    messages.forEach((message) => {
-      const messageIndex = state.findIndex((m) => m.id === message.id);
-      if (messageIndex !== -1) {
-        state[messageIndex] = message;
-      } else {
-        newMessages.push(message);
-      }
+    const existingIds = new Set(state.map(m => m.id));
+    const newMessages = messages.filter(message => !existingIds.has(message.id));
+    const updatedState = state.map(message => {
+      const updatedMessage = messages.find(m => m.id === message.id);
+      return updatedMessage || message;
     });
 
-    return [...newMessages, ...state];
+    return [...newMessages, ...updatedState];
   }
 
   if (action.type === "ADD_MESSAGE") {
@@ -290,12 +286,12 @@ const reducer = (state, action) => {
     const messageIndex = state.findIndex((m) => m.id === newMessage.id);
 
     if (messageIndex !== -1) {
-      state[messageIndex] = newMessage;
+      return state.map((message, index) => 
+        index === messageIndex ? newMessage : message
+      );
     } else {
-      state.push(newMessage);
+      return [...state, newMessage];
     }
-
-    return [...state];
   }
 
   if (action.type === "UPDATE_MESSAGE") {
@@ -303,10 +299,12 @@ const reducer = (state, action) => {
     const messageIndex = state.findIndex((m) => m.id === messageToUpdate.id);
 
     if (messageIndex !== -1) {
-      state[messageIndex] = messageToUpdate;
+      return state.map((message, index) => 
+        index === messageIndex ? messageToUpdate : message
+      );
     }
 
-    return [...state];
+    return state;
   }
 
   if (action.type === "RESET") {
@@ -338,34 +336,29 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
   }, [ticketId]);
 
   useEffect(() => {
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchMessages = async () => {
-        if (ticketId === undefined) return;
-        try {
-          const { data } = await api.get("/messages/" + ticketId, {
-            params: { pageNumber },
-          });
+    const fetchMessages = async () => {
+      if (ticketId === undefined) return;
+      setLoading(true);
+      try {
+        const { data } = await api.get("/messages/" + ticketId, {
+          params: { pageNumber },
+        });
 
-          if (currentTicketId.current === ticketId) {
-            dispatch({ type: "LOAD_MESSAGES", payload: data.messages });
-            setHasMore(data.hasMore);
-            setLoading(false);
-          }
-
-          if (pageNumber === 1 && data.messages.length > 1) {
-            scrollToBottom();
-          }
-        } catch (err) {
+        if (currentTicketId.current === ticketId) {
+          dispatch({ type: "LOAD_MESSAGES", payload: data.messages });
+          setHasMore(data.hasMore);
           setLoading(false);
-          toastError(err);
         }
-      };
-      fetchMessages();
-    }, 500);
-    return () => {
-      clearTimeout(delayDebounceFn);
+
+        if (pageNumber === 1 && data.messages.length > 1) {
+          scrollToBottom();
+        }
+      } catch (err) {
+        setLoading(false);
+        toastError(err);
+      }
     };
+    fetchMessages();
   }, [pageNumber, ticketId]);
 
   useEffect(() => {
@@ -386,36 +379,47 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
     });
 
     return () => {
-      socket.disconnect();
+      socket.off("ready");
+      socket.off(`company-${companyId}-appMessage`);
     };
-  }, [ticketId, ticket, socketManager]);
+  }, [ticketId, ticket?.id, socketManager]);
 
   const loadMore = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
   };
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({});
+      const container = lastMessageRef.current.closest('.messages-container');
+      if (container) {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+        
+        if (isNearBottom) {
+          requestAnimationFrame(() => {
+            lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          });
+        }
+      } else {
+        requestAnimationFrame(() => {
+          lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        });
+      }
     }
-  };
+  }, []);
 
-  const handleScroll = (e) => {
-    if (!hasMore) return;
+  const handleScroll = useCallback((e) => {
+    if (!hasMore || loading) return;
     const { scrollTop } = e.currentTarget;
 
     if (scrollTop === 0) {
-      document.getElementById("messagesList").scrollTop = 1;
-    }
-
-    if (loading) {
-      return;
+      e.currentTarget.scrollTop = 1;
     }
 
     if (scrollTop < 50) {
       loadMore();
     }
-  };
+  }, [hasMore, loading, loadMore]);
 
   const handleOpenMessageOptionsMenu = (e, message) => {
     setAnchorEl(e.currentTarget);
@@ -834,4 +838,4 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
   );
 };
 
-export default MessagesList;
+export default React.memo(MessagesList);

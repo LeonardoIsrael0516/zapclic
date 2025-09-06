@@ -19,6 +19,7 @@ import Button from "@material-ui/core/Button";
 import audioNode from "./nodes/audioNode";
 import typebotNode from "./nodes/typebotNode";
 import openaiNode from "./nodes/openaiNode";
+import aiAgentNode from "./nodes/aiAgentNode";
 import messageNode from "./nodes/messageNode.js";
 import startNode from "./nodes/startNode";
 import menuNode from "./nodes/menuNode";
@@ -79,6 +80,7 @@ import FlowBuilderAddVideoModal from "../../components/FlowBuilderAddVideoModal"
 import FlowBuilderSingleBlockModal from "../../components/FlowBuilderSingleBlockModal";
 import FlowBuilderTypebotModal from "../../components/FlowBuilderAddTypebotModal";
 import FlowBuilderOpenAIModal from "../../components/FlowBuilderAddOpenAIModal";
+import FlowBuilderAIAgentModal from "../../components/FlowBuilderAIAgentModal";
 import FlowBuilderAddQuestionModal from "../../components/FlowBuilderAddQuestionModal";
 
 import {
@@ -139,6 +141,7 @@ const nodeTypes = {
   ticket: ticketNode,
   typebot: typebotNode,
   openai: openaiNode,
+  aiAgent: aiAgentNode,
   question: questionNode,
 };
 
@@ -181,6 +184,7 @@ const FlowBuilderConfig = () => {
   const [modalAddTicket, setModalAddTicket] = useState(null);
   const [modalAddTypebot, setModalAddTypebot] = useState(null);
   const [modalAddOpenAI, setModalAddOpenAI] = useState(null);
+  const [modalAddAIAgent, setModalAddAIAgent] = useState(null);
   const [modalAddQuestion, setModalAddQuestion] = useState(null);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -435,6 +439,10 @@ const FlowBuilderConfig = () => {
 
   const openaiAdd = (data) => {
     addNode("openai", data);
+  };
+
+  const aiAgentAdd = (data) => {
+    addNode("aiAgent", data);
   };
 
   const questionAdd = (data) => {
@@ -695,6 +703,18 @@ const FlowBuilderConfig = () => {
     },
     {
       icon: (
+        <HiOutlinePuzzle
+          style={{
+            color: "#8B5CF6",
+            fontSize: "24px"
+          }}
+        />
+      ),
+      name: "Agente de IA",
+      type: "aiAgent",
+    },
+    {
+      icon: (
         <BallotIcon
           sx={{
             color: "#F7953B",
@@ -732,6 +752,9 @@ const FlowBuilderConfig = () => {
         break;
       case "openai":
         setModalAddOpenAI("create");
+        break
+      case "aiAgent":
+        setModalAddAIAgent("create");
         break
       case "question":
         setModalAddQuestion("create");
@@ -884,6 +907,13 @@ const FlowBuilderConfig = () => {
         data={dataNode}
         onUpdate={updateNode}
         close={setModalAddOpenAI}
+      />
+
+      <FlowBuilderAIAgentModal
+        open={modalAddAIAgent}
+        onSave={aiAgentAdd}
+        nodeData={dataNode}
+        onClose={() => setModalAddAIAgent(null)}
       />
 
       <FlowBuilderTypebotModal

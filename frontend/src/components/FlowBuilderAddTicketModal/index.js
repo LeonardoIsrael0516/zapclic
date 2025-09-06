@@ -107,7 +107,7 @@ const FlowBuilderTicketModal = ({
 
     const handleSaveContact = () => {
         if (!selectedQueue) {
-            return toast.error('Adicione uma fila')
+            return toast.error('Adicione um setor')
         }
         if (open === 'edit') {
             const queue = queues.find(item => item.id === selectedQueue)

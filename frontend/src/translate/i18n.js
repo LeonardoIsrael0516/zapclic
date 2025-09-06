@@ -1,16 +1,27 @@
 import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 import { messages } from "./languages";
 
-const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
+// Detecta o idioma do navegador automaticamente
+const detectionOptions = {
+	order: ['navigator', 'localStorage', 'htmlTag', 'path', 'subdomain'],
+	caches: ['localStorage'],
+	lookupLocalStorage: 'i18nextLng',
+	checkWhitelist: true
+};
 
-i18n.init({
-	debug: true,
-	defaultNS: ["translations"],
-	fallbackLng: "pt",
-	ns: ["translations"],
-	resources: messages,
-	lng: savedLanguage,
-});
+i18n
+	.use(LanguageDetector)
+	.init({
+		debug: true,
+		defaultNS: ["translations"],
+		fallbackLng: "pt",
+		ns: ["translations"],
+		resources: messages,
+		detection: detectionOptions,
+		whitelist: ['pt', 'en', 'es', 'pt-BR', 'tr'], // idiomas suportados
+		nonExplicitWhitelist: true
+	});
 
 export const changeLanguage = (language) => {
 	i18n.changeLanguage(language);

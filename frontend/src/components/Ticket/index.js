@@ -72,25 +72,41 @@ const Ticket = () => {
   const socketManager = useContext(SocketContext);
 
   useEffect(() => {
+    if (!ticketId) {
+      console.error('No ticketId provided');
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       const fetchTicket = async () => {
         try {
           const { data } = await api.get("/tickets/u/" + ticketId);
-          const { queueId } = data;
-          const { queues, profile } = user;
-
-          const queueAllowed = queues.find((q) => q.id === queueId);
-          if (queueAllowed === undefined && profile !== "admin") {
-            toast.error(i18n.t("tickets.toasts.unauthorized"));
-            history.push("/tickets");
+          
+          if (!data) {
+            console.error('No ticket data received');
+            setLoading(false);
             return;
           }
+          
+          const { queueId } = data;
+          const { queues, profile } = user || {};
 
-          setContact(data.contact);
+          if (queues && queueId) {
+            const queueAllowed = queues.find((q) => q.id === queueId);
+            if (queueAllowed === undefined && profile !== "admin") {
+              toast.error(i18n.t("tickets.toasts.unauthorized"));
+              history.push("/tickets");
+              return;
+            }
+          }
+
+          setContact(data.contact || {});
           setTicket(data);
           setLoading(false);
         } catch (err) {
+          console.error('Error fetching ticket:', err);
           setLoading(false);
           toastError(err);
         }
@@ -101,17 +117,30 @@ const Ticket = () => {
   }, [ticketId, user, history]);
 
   useEffect(() => {
+    if (!ticket.id || !socketManager) {
+      return;
+    }
+    
     const companyId = localStorage.getItem("companyId");
+    if (!companyId) {
+      console.error('No companyId found in localStorage');
+      return;
+    }
+    
     const socket = socketManager.getSocket(companyId);
+    if (!socket) {
+      console.error('Failed to get socket connection');
+      return;
+    }
 
     socket.on("ready", () => socket.emit("joinChatBox", `${ticket.id}`));
 
     socket.on(`company-${companyId}-ticket`, (data) => {
-      if (data.action === "update" && data.ticket.id === ticket.id) {
+      if (data && data.action === "update" && data.ticket && data.ticket.id === ticket.id) {
         setTicket(data.ticket);
       }
 
-      if (data.action === "delete" && data.ticketId === ticket.id) {
+      if (data && data.action === "delete" && data.ticketId === ticket.id) {
         // toast.success("Ticket deleted sucessfully.");
         history.push("/tickets");
       }

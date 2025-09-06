@@ -38,16 +38,27 @@ const useTickets = ({
               withUnreadMessages,
             },
           });
-          setTickets(data.tickets);
-          setHasMore(data.hasMore);
+          
+          // Verificações de segurança para evitar crashes
+          if (data && data.tickets) {
+            setTickets(data.tickets || []);
+            setHasMore(data.hasMore || false);
+          } else {
+            console.error("[useTickets] Dados inválidos recebidos:", data);
+            setTickets([]);
+            setHasMore(false);
+          }
           setLoading(false);
         } catch (err) {
+          console.error("[useTickets] Erro ao buscar tickets:", err);
           setLoading(false);
+          setTickets([]);
+          setHasMore(false);
           toastError(err);
         }
       };
       fetchTickets();
-    }, 500);
+    }, 300); // Reduzido de 500ms para 300ms para melhor responsividade
     return () => clearTimeout(delayDebounceFn);
   }, [
     searchParam,

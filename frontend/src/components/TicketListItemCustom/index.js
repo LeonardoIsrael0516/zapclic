@@ -135,8 +135,7 @@ const useStyles = makeStyles((theme) => ({
     right: "108px",
   },
 
-
-  acceptButton: {
+  acceptButtonCenter: {
     position: "absolute",
     left: "50%",
   },
@@ -262,6 +261,11 @@ const useStyles = makeStyles((theme) => ({
   };
 
     const handleAcepptTicket = async (id) => {
+        if (!id || !ticket) {
+            console.error('Invalid ticket data for acceptance');
+            return;
+        }
+        
         setLoading(true);
         try {
             await api.put(`/tickets/${id}`, {
@@ -269,7 +273,7 @@ const useStyles = makeStyles((theme) => ({
                 userId: user?.id,
             });
             
-            let settingIndex;
+            let settingIndex = [];
 
             try {
                 const { data } = await api.get("/settings/");
@@ -277,27 +281,31 @@ const useStyles = makeStyles((theme) => ({
                 settingIndex = data.filter((s) => s.key === "sendGreetingAccepted");
                 
             } catch (err) {
+                console.error('Error fetching settings:', err);
                 toastError(err);
-                   
             }
             
-            if (settingIndex[0].value === "enabled" && !ticket.isGroup) {
+            if (settingIndex.length > 0 && settingIndex[0].value === "enabled" && !ticket.isGroup) {
                 handleSendMessage(ticket.id);
-                
             }
 
         } catch (err) {
             setLoading(false);
-            
+            console.error('Error accepting ticket:', err);
             toastError(err);
+            return;
         }
+        
         if (isMounted.current) {
             setLoading(false);
         }
 
-        // handleChangeTab(null, "tickets");
-        // handleChangeTab(null, "open");
-        history.push(`/tickets/${ticket.uuid}`);
+        // Verificar se o ticket tem uuid antes de navegar
+        if (ticket.uuid) {
+            history.push(`/tickets/${ticket.uuid}`);
+        } else {
+            console.error('Ticket UUID not found');
+        }
     };
 	
 	    const handleSendMessage = async (id) => {
@@ -548,4 +556,4 @@ const useStyles = makeStyles((theme) => ({
   );
 };
 
-export default TicketListItemCustom;
+export default React.memo(TicketListItemCustom);

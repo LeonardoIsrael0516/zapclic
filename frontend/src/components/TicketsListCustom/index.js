@@ -120,32 +120,26 @@ const reducer = (state, action) => {
 
     const ticketIndex = state.findIndex((t) => t.id === ticket.id);
     if (ticketIndex !== -1) {
-      state[ticketIndex] = ticket;
-      state.unshift(state.splice(ticketIndex, 1)[0]);
+      // Remove o ticket da posição atual e adiciona no início
+      const newState = state.filter((t) => t.id !== ticket.id);
+      return [ticket, ...newState];
     } else {
-      state.unshift(ticket);
+      return [ticket, ...state];
     }
-
-    return [...state];
   }
 
   if (action.type === "UPDATE_TICKET_CONTACT") {
     const contact = action.payload;
-    const ticketIndex = state.findIndex((t) => t.contactId === contact.id);
-    if (ticketIndex !== -1) {
-      state[ticketIndex].contact = contact;
-    }
-    return [...state];
+    return state.map((ticket) => 
+      ticket.contactId === contact.id 
+        ? { ...ticket, contact } 
+        : ticket
+    );
   }
 
   if (action.type === "DELETE_TICKET") {
     const ticketId = action.payload;
-    const ticketIndex = state.findIndex((t) => t.id === ticketId);
-    if (ticketIndex !== -1) {
-      state.splice(ticketIndex, 1);
-    }
-
-    return [...state];
+    return state.filter((ticket) => ticket.id !== ticketId);
   }
 
   if (action.type === "RESET") {
@@ -185,6 +179,7 @@ const TicketsListCustom = (props) => {
     tags: JSON.stringify(tags),
     users: JSON.stringify(users),
     queueIds: JSON.stringify(selectedQueueIds),
+    withUnreadMessages: "true",
   });
 
   useEffect(() => {
@@ -202,7 +197,7 @@ const TicketsListCustom = (props) => {
 
   useEffect(() => {
     const companyId = localStorage.getItem("companyId");
-    console.log("[TicketsListCustom] useEffect executado - CompanyId:", companyId, "status:", status, "searchParam:", searchParam);
+    // console.log("[TicketsListCustom] useEffect executado - CompanyId:", companyId, "status:", status, "searchParam:", searchParam);
     const socket = socketManager.getSocket(companyId);
 
     const shouldUpdateTicket = (ticket) =>
@@ -213,16 +208,25 @@ const TicketsListCustom = (props) => {
       ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
 
     socket.on("ready", () => {
+      // console.log("[TicketsListCustom] Socket ready! CompanyId:", companyId, "Status:", status);
       if (status) {
+        // console.log("[TicketsListCustom] Emitindo joinTickets para status:", status);
         socket.emit("joinTickets", status);
       } else {
+        // console.log("[TicketsListCustom] Emitindo joinNotification");
         socket.emit("joinNotification");
       }
+      
+      // Teste manual de conectividade
+      // console.log("[TicketsListCustom] Socket conectado:", socket.connected);
+      // console.log("[TicketsListCustom] Socket ID:", socket.id);
     });
 
     socket.on(`company-${companyId}-ticket`, (data) => {
+      // console.log("[TicketsListCustom] Evento company-ticket recebido:", data);
       
       if (data.action === "updateUnread") {
+        // console.log("[TicketsListCustom] Processando updateUnread para ticket:", data.ticketId);
         dispatch({
           type: "RESET_UNREAD",
           payload: data.ticketId,
@@ -230,6 +234,7 @@ const TicketsListCustom = (props) => {
       }
 
       if (data.action === "update" && shouldUpdateTicket(data.ticket) && data.ticket.status === status) {
+        // console.log("[TicketsListCustom] Processando update para ticket:", data.ticket.id, "status:", data.ticket.status);
         dispatch({
           type: "UPDATE_TICKET",
           payload: data.ticket,
@@ -237,25 +242,30 @@ const TicketsListCustom = (props) => {
       }
 
       if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
+        // console.log("[TicketsListCustom] Removendo ticket que não pertence às filas do usuário:", data.ticket.id);
         dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
       }
 
       if (data.action === "delete") {
+        // console.log("[TicketsListCustom] Processando delete para ticket:", data.ticketId);
         dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
       }
     });
 
     socket.on(`company-${companyId}-appMessage`, (data) => {
+      // console.log("[TicketsListCustom] Evento appMessage recebido:", data);
       const queueIds = queues.map((q) => q.id);
       if (
         profile === "user" &&
         (queueIds.indexOf(data.ticket?.queue?.id) === -1 ||
           data.ticket.queue === null)
       ) {
+        // console.log("[TicketsListCustom] Mensagem ignorada - ticket não pertence às filas do usuário");
         return;
       }
 
       if (data.action === "create" && shouldUpdateTicket(data.ticket) && ( status === undefined || data.ticket.status === status)) {
+        // console.log("[TicketsListCustom] Atualizando mensagens não lidas para ticket:", data.ticket.id);
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
           payload: data.ticket,
@@ -272,73 +282,78 @@ const TicketsListCustom = (props) => {
       }
     });
 
-    // Escuta o heartbeat do servidor para sincronização
+    // Escuta o heartbeat do servidor para sincronização (otimizado)
     socket.on("heartbeat", (data) => {
-      console.log("[TicketsListCustom] Heartbeat recebido:", data);
-      if (data.action === "sync" && status && !searchParam) {
-        console.log("[TicketsListCustom] Atualizando tickets via heartbeat");
-        // Força uma nova busca de tickets quando recebe heartbeat
-        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
-      }
+      // console.log("[TicketsListCustom] Heartbeat recebido:", data);
+      // Removido reset automático da lista no heartbeat para evitar travamentos
+      // O heartbeat agora serve apenas para manter a conexão ativa
     });
 
-    // Escuta mudanças de status para atualização imediata
+    // Escuta mudanças de status para atualização otimizada
     socket.on(`company-${companyId}-ticket-status-change`, (data) => {
-      console.log("[TicketsListCustom] Status change recebido:", data);
-      if (data.action === "status-change") {
-        console.log("[TicketsListCustom] Atualizando tickets via status change");
-        // Atualiza imediatamente quando há mudança de status
-        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
-        // Força atualização do contador
+      // console.log("[TicketsListCustom] Status change recebido:", data);
+      if (data.action === "status-change" && data.ticket) {
+        // console.log("[TicketsListCustom] Processando mudança de status do ticket:", data.ticket.id);
+        
+        // Se o ticket mudou para o status atual da aba, adiciona/atualiza
+        if (data.ticket.status === status) {
+          dispatch({
+            type: "UPDATE_TICKET",
+            payload: data.ticket,
+          });
+        } 
+        // Se o ticket saiu do status atual da aba, remove
+        else if (data.oldStatus === status) {
+          dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
+        }
+        
+        // Atualiza contador sem resetar lista
         if (typeof updateCount === "function") {
-          setTimeout(() => updateCount(ticketsList.length), 100);
+          requestAnimationFrame(() => updateCount(ticketsList.length));
         }
       }
     });
 
-    // Escuta novas mensagens para atualização imediata
+    // Escuta novas mensagens para atualização mais suave
     socket.on(`company-${companyId}-new-message`, (data) => {
-      console.log("[TicketsListCustom] New message recebido:", data);
-      if (data.action === "new-message" && (status === undefined || data.status === status)) {
-        console.log("[TicketsListCustom] Atualizando tickets via new message");
-        // Atualiza imediatamente quando há nova mensagem
-        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
-        // Força atualização do contador
+      // console.log("[TicketsListCustom] New message recebido:", data);
+      if (data.action === "new-message" && data.ticket && (status === undefined || data.ticket.status === status)) {
+        // console.log("[TicketsListCustom] Atualizando ticket específico via new message");
+        // Atualiza apenas o ticket específico ao invés de resetar toda a lista
+        dispatch({
+          type: "UPDATE_TICKET_UNREAD_MESSAGES",
+          payload: data.ticket,
+        });
+        // Atualiza contador sem resetar lista
         if (typeof updateCount === "function") {
-          setTimeout(() => updateCount(ticketsList.length), 100);
+          requestAnimationFrame(() => updateCount(ticketsList.length));
         }
       }
     });
 
-    // Sistema de atualização automática mais frequente
-    const autoRefreshInterval = setInterval(() => {
-      // Força uma nova busca de tickets a cada 5 segundos para teste
-      if (status && !searchParam) {
-        console.log("[TicketsListCustom] Auto refresh executado - status:", status, "searchParam:", searchParam);
-        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
-      }
-    }, 5000); // 5 segundos para teste
-
-    // Teste: força uma atualização após 3 segundos
-    setTimeout(() => {
-      if (status && !searchParam) {
-        console.log("[TicketsListCustom] TESTE: Forçando atualização após 3s");
-        dispatch({ type: "LOAD_TICKETS", payload: { tickets: [], hasMore: true } });
-      }
-    }, 3000);
+    // Removido sistema de atualização automática que causava loops infinitos
 
     return () => {
-      socket.disconnect();
-      clearInterval(autoRefreshInterval);
+      socket.off("ready");
+      socket.off(`company-${companyId}-ticket`);
+      socket.off(`company-${companyId}-appMessage`);
+      socket.off(`company-${companyId}-contact`);
+      socket.off("heartbeat");
+      socket.off(`company-${companyId}-ticket-status-change`);
+      socket.off(`company-${companyId}-new-message`);
     };
-  }, [status, showAll, user, selectedQueueIds, tags, users, profile, queues, socketManager, searchParam]);
+  }, [status, showAll, user?.id, selectedQueueIds, profile, socketManager]);
 
   useEffect(() => {
     if (typeof updateCount === "function") {
-      updateCount(ticketsList.length);
+      // Debounce para evitar chamadas excessivas
+      const timeoutId = setTimeout(() => {
+        updateCount(ticketsList.length);
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticketsList]);
+  }, [ticketsList.length, updateCount]); // Depende apenas do length, não do array completo
 
   const loadMore = () => {
     setPageNumber((prevState) => prevState + 1);
@@ -354,8 +369,48 @@ const TicketsListCustom = (props) => {
     }
   };
 
+  // Função de teste removida para evitar loops infinitos
+  
+  // Função para testar conectividade do socket
+  const testSocketConnectivity = () => {
+    console.log("[TicketsListCustom] TESTE SOCKET:");
+    console.log("- Socket conectado:", socket.connected);
+    console.log("- Socket ID:", socket.id);
+    console.log("- CompanyId:", companyId);
+    console.log("- Status atual:", status);
+    console.log("- Listeners ativos:", socket.eventNames());
+    
+    // Testa emissão manual
+    socket.emit("test-connectivity", { message: "Teste de conectividade", timestamp: new Date().toISOString() });
+    console.log("- Evento test-connectivity emitido");
+  };
+  
+  // Expor função globalmente para teste no console
+  if (typeof window !== 'undefined') {
+    window.testSocketConnectivity = testSocketConnectivity;
+    window.testStatusChange = testStatusChange;
+  }
+
   return (
     <Paper className={classes.ticketsListWrapper} style={style}>
+      {/* Botão de teste temporário */}
+      <button 
+        onClick={testStatusChange}
+        style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          zIndex: 9999,
+          backgroundColor: '#ff4444',
+          color: 'white',
+          border: 'none',
+          padding: '10px',
+          borderRadius: '5px',
+          cursor: 'pointer'
+        }}
+      >
+        TESTE ATUALIZAÇÃO
+      </button>
       <Paper
         square
         name="closed"
@@ -387,4 +442,4 @@ const TicketsListCustom = (props) => {
   );
 };
 
-export default TicketsListCustom;
+export default React.memo(TicketsListCustom);

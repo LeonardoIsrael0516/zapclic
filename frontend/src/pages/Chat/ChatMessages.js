@@ -90,18 +90,20 @@ export default function ChatMessages({
   };
 
   const unreadMessages = (chat) => {
-    if (chat !== undefined) {
+    if (chat !== undefined && chat.users) {
       const currentUser = chat.users.find((u) => u.userId === user.id);
-      return currentUser.unreads > 0;
+      return currentUser && currentUser.unreads > 0;
     }
     return 0;
   };
 
   useEffect(() => {
-    if (unreadMessages(chat) > 0) {
+    if (chat && chat.id && unreadMessages(chat) > 0) {
       try {
         api.post(`/chats/${chat.id}/read`, { userId: user.id });
-      } catch (err) {}
+      } catch (err) {
+        console.error('Error marking chat as read:', err);
+      }
     }
     scrollToBottomRef.current = scrollToBottom;
     // eslint-disable-next-line react-hooks/exhaustive-deps

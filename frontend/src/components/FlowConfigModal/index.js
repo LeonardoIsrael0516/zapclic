@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
-  TextField,
+  Grid,
+  Typography,
   Switch,
   FormControlLabel,
-  Typography,
-  Grid,
-  Chip,
-  Box,
+  TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  OutlinedInput,
+  Chip,
+  Box,
   Checkbox,
   ListItemText,
-  OutlinedInput,
+  Radio,
+  RadioGroup
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
+import { AuthContext } from '../../context/Auth/AuthContext';
 
 const DAYS_OF_WEEK = [
   { value: 0, label: 'Domingo' },
@@ -33,28 +36,48 @@ const DAYS_OF_WEEK = [
   { value: 6, label: 'Sábado' },
 ];
 
-const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
+const FlowConfigModal = ({ open, onClose, flowId }) => {
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [whatsapps, setWhatsapps] = useState([]);
   const [config, setConfig] = useState({
     workingHours: {
       enabled: false,
       startTime: '09:00',
       endTime: '18:00',
-      workingDays: [1, 2, 3, 4, 5],
-      outOfHoursMessage: 'Estamos fora do horário de atendimento. Retornaremos em breve.',
+      workingDays: [1, 2, 3, 4, 5], // Segunda a sexta
+      outOfHoursMessage: 'Estamos fora do horário de atendimento. Retornaremos em breve.'
     },
     keywords: {
       enabled: false,
       list: [],
+      matchType: 'equals' // 'equals' ou 'contains'
     },
+    autoSend: {
+      enabled: false
+    },
+    whatsappId: ''
   });
   const [newKeyword, setNewKeyword] = useState('');
+  const [newKeywordType, setNewKeywordType] = useState('equals');
 
   useEffect(() => {
     if (open && flowId) {
       fetchFlowConfig();
+      fetchWhatsapps();
     }
   }, [open, flowId]);
+
+  const fetchWhatsapps = async () => {
+    try {
+      const { data } = await api.get('/whatsapp', {
+        params: { companyId: user.companyId, session: 0 }
+      });
+      setWhatsapps(data);
+    } catch (error) {
+      console.error('Erro ao carregar conexões:', error);
+    }
+  };
 
   const fetchFlowConfig = async () => {
     try {
@@ -73,8 +96,14 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
           keywords: {
             enabled: false,
             list: [],
+            matchType: 'equals',
             ...response.data.config.keywords,
           },
+          autoSend: {
+            enabled: false,
+            ...response.data.config.autoSend,
+          },
+          whatsappId: response.data.config.whatsappId || ''
         });
       }
     } catch (error) {
@@ -87,12 +116,14 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
   const handleSave = async () => {
     try {
       setLoading(true);
-      await api.post(`/flowbuilder/config/${flowId}`, { config });
+      console.log('Salvando configurações:', config);
+      const response = await api.post(`/flowbuilder/config/${flowId}`, { config });
+      console.log('Resposta do servidor:', response.data);
       toast.success('Configurações salvas com sucesso!');
-      if (onSave) onSave(config);
       onClose();
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
+      console.error('Detalhes do erro:', error.response?.data);
       toast.error('Erro ao salvar configurações');
     } finally {
       setLoading(false);
@@ -119,17 +150,54 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
     }));
   };
 
+  const handleAutoSendChange = (field, value) => {
+    setConfig(prev => ({
+      ...prev,
+      autoSend: {
+        ...prev.autoSend,
+        [field]: value,
+      },
+    }));
+  };
+
 
 
   const addKeyword = () => {
-    if (newKeyword.trim() && !config.keywords.list.includes(newKeyword.trim())) {
-      handleKeywordsChange('list', [...config.keywords.list, newKeyword.trim()]);
+    const trimmedKeyword = newKeyword.trim();
+    if (!trimmedKeyword) return;
+    
+    // Verificar se já existe (compatível com string e objeto)
+    const exists = config.keywords.list.some(k => {
+      const keywordText = typeof k === 'string' ? k : k.text;
+      return keywordText === trimmedKeyword;
+    });
+    
+    if (!exists) {
+      const newKeywordObj = {
+        text: trimmedKeyword,
+        type: newKeywordType
+      };
+      handleKeywordsChange('list', [...config.keywords.list, newKeywordObj]);
       setNewKeyword('');
     }
   };
 
   const removeKeyword = (keyword) => {
-    handleKeywordsChange('list', config.keywords.list.filter(k => k !== keyword));
+    handleKeywordsChange('list', config.keywords.list.filter(k => {
+      if (typeof k === 'string' && typeof keyword === 'string') {
+        return k !== keyword;
+      }
+      if (typeof k === 'object' && typeof keyword === 'object') {
+        return k.text !== keyword.text;
+      }
+      if (typeof k === 'string' && typeof keyword === 'object') {
+        return k !== keyword.text;
+      }
+      if (typeof k === 'object' && typeof keyword === 'string') {
+        return k.text !== keyword;
+      }
+      return true;
+    }));
   };
 
   const handleKeyPress = (event) => {
@@ -160,7 +228,7 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
   return (
     <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        Configurações do Fluxo - {flowData?.name || 'Fluxo'}
+        Configurações do Fluxo
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3}>
@@ -244,6 +312,44 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
             </>
           )}
 
+          {/* Seleção de Conexão */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Conexão WhatsApp
+            </Typography>
+            <FormControl fullWidth>
+              <InputLabel>Selecionar Conexão</InputLabel>
+              <Select
+                value={config.whatsappId}
+                onChange={(e) => setConfig(prev => ({ ...prev, whatsappId: e.target.value }))}
+                input={<OutlinedInput label="Selecionar Conexão" />}
+              >
+                <MenuItem value="">Nenhuma conexão selecionada</MenuItem>
+                {whatsapps.map((whatsapp) => (
+                  <MenuItem key={whatsapp.id} value={whatsapp.id}>
+                    {whatsapp.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Envio Automático */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Envio Automático
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={config.autoSend.enabled}
+                  onChange={(e) => handleAutoSendChange('enabled', e.target.checked)}
+                />
+              }
+              label="Disparar fluxo automaticamente no primeiro contato (sem necessidade de palavra-chave)"
+            />
+          </Grid>
+
           {/* Palavras-chave */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
@@ -272,6 +378,17 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
                     size="small"
                     sx={{ flexGrow: 1 }}
                   />
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel>Tipo</InputLabel>
+                    <Select
+                      value={newKeywordType}
+                      onChange={(e) => setNewKeywordType(e.target.value)}
+                      label="Tipo"
+                    >
+                      <MenuItem value="equals">É igual</MenuItem>
+                      <MenuItem value="contains">Contém</MenuItem>
+                    </Select>
+                  </FormControl>
                   <Button onClick={addKeyword} variant="outlined" size="small">
                     Adicionar
                   </Button>
@@ -279,15 +396,19 @@ const FlowConfigModal = ({ open, onClose, flowId, flowData, onSave }) => {
               </Grid>
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {config.keywords.list.map((keyword, index) => (
-                    <Chip
-                      key={index}
-                      label={keyword}
-                      onDelete={() => removeKeyword(keyword)}
-                      color="primary"
-                      variant="outlined"
-                    />
-                  ))}
+                  {config.keywords.list.map((keyword, index) => {
+                    const keywordText = typeof keyword === 'string' ? keyword : keyword.text;
+                    const keywordType = typeof keyword === 'string' ? 'equals' : keyword.type;
+                    return (
+                      <Chip
+                        key={index}
+                        label={`${keywordText} (${keywordType === 'contains' ? 'Contém' : 'É igual'})`}
+                        onDelete={() => removeKeyword(keyword)}
+                        color={keywordType === 'contains' ? 'secondary' : 'primary'}
+                        variant="outlined"
+                      />
+                    );
+                  })}
                 </Box>
               </Grid>
             </>

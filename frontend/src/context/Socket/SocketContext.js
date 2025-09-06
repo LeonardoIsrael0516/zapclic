@@ -37,8 +37,15 @@ class ManagedSocket {
   }
   
   off(event, callback) {
-    const i = this.callbacks.findIndex((c) => c.event === event && c.callback === callback);
-    this.callbacks.splice(i, 1);
+    if (callback) {
+      const i = this.callbacks.findIndex((c) => c.event === event && c.callback === callback);
+      if (i !== -1) {
+        this.callbacks.splice(i, 1);
+      }
+    } else {
+      // Remove all callbacks for this event
+      this.callbacks = this.callbacks.filter((c) => c.event !== event);
+    }
     return this.rawSocket.off(event, callback);
   }
   
@@ -76,6 +83,10 @@ const SocketManager = {
   socketReady: false,
 
   getSocket: function(companyId) {
+    // Expõe o socket manager no window para testes
+    if (typeof window !== 'undefined') {
+      window.socketManager = this;
+    }
     let userId = null;
     if (localStorage.getItem("userId")) {
       userId = localStorage.getItem("userId");
@@ -140,14 +151,17 @@ const SocketManager = {
       
       this.currentSocket.on("connect", (...params) => {
         console.warn("socket connected", params);
+        // Conecta automaticamente ao canal mainchannel para receber notificações
+        this.currentSocket.emit("joinMainChannel");
       })
       
-      this.currentSocket.onAny((event, ...args) => {
-        if (event === "heartbeat") {
-          console.log("[SocketManager] Heartbeat recebido:", args);
-        }
-        console.debug("Event: ", { socket: this.currentSocket, event, args });
-      });
+      // Removido onAny para evitar memory leaks e melhorar performance
+      // this.currentSocket.onAny((event, ...args) => {
+      //   if (event === "heartbeat") {
+      //     console.log("[SocketManager] Heartbeat recebido:", args);
+      //   }
+      //   console.debug("Event: ", { socket: this.currentSocket, event, args });
+      // });
       
       this.onReady(() => {
         this.socketReady = true;

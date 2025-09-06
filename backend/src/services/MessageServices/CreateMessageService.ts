@@ -63,6 +63,7 @@ const CreateMessageService = async ({
   io.to(message.ticketId.toString())
     .to(`company-${companyId}-${message.ticket.status}`)
     .to(`company-${companyId}-notification`)
+    .to(`company-${companyId}-mainchannel`)
     .to(`queue-${message.ticket.queueId}-${message.ticket.status}`)
     .to(`queue-${message.ticket.queueId}-notification`)
     .emit(`company-${companyId}-appMessage`, {
@@ -74,7 +75,7 @@ const CreateMessageService = async ({
 
   // Emite evento adicional para atualização imediata das abas
   io.to(`company-${companyId}-mainchannel`)
-    .emit(`company-${companyId}-new-message`, {
+    .emit(`company-${companyId}-chat`, {
       action: "new-message",
       ticketId: message.ticketId,
       messageId: message.id,

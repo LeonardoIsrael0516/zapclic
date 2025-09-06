@@ -1,0 +1,19 @@
+{
+  "event": "company-1-ticket",
+  "data": {
+    "action": "update",
+    "ticket": {
+      "id": 999,
+      "status": "open",
+      "contact": {
+        "name": "Teste Socket"
+      },
+      "queue": {
+        "id": 1,
+        "name": "Suporte"
+      },
+      "unreadMessages": 1
+    }
+  },
+  "timestamp": "2025-09-05T16:47:34.686Z"
+}

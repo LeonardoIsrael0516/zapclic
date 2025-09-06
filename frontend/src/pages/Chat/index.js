@@ -70,13 +70,13 @@ export function ChatModal({
   useEffect(() => {
     setTitle("");
     setUsers([]);
-    if (type === "edit") {
+    if (type === "edit" && chat && chat.users) {
       const userList = chat.users.map((u) => ({
         id: u.user.id,
         name: u.user.name,
       }));
       setUsers(userList);
-      setTitle(chat.title);
+      setTitle(chat.title || "");
     }
   }, [chat, open, type]);
 

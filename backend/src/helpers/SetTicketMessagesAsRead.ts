@@ -52,11 +52,15 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
     );
   }
 
-  const io = getIO();
-  io.to(`company-${ticket.companyId}-mainchannel`).emit(`company-${ticket.companyId}-ticket`, {
-    action: "updateUnread",
-    ticketId: ticket.id
-  });
+  try {
+    const io = getIO();
+    io.to(`company-${ticket.companyId}-mainchannel`).emit(`company-${ticket.companyId}-ticket`, {
+      action: "updateUnread",
+      ticketId: ticket.id
+    });
+  } catch (error) {
+    // Socket IO não disponível, continua sem emitir eventos
+  }
 };
 
 export default SetTicketMessagesAsRead;

@@ -20,6 +20,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 import MicIcon from "@material-ui/icons/Mic";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import HighlightOffIcon from "@material-ui/icons/HighlightOff";
+import AccountTreeIcon from "@material-ui/icons/AccountTree";
 import { FormControlLabel, Switch } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { isString, isEmpty, isObject, has } from "lodash";
@@ -35,6 +36,7 @@ import { useLocalStorage } from "../../hooks/useLocalStorage";
 import toastError from "../../errors/toastError";
 
 import useQuickMessages from "../../hooks/useQuickMessages";
+import FlowSelector from "../FlowSelector";
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
@@ -245,6 +247,22 @@ const FileInput = (props) => {
         </IconButton>
       </label>
     </>
+  );
+};
+
+const FlowButton = (props) => {
+  const { handleOpenFlowSelector, disableOption } = props;
+  const classes = useStyles();
+  return (
+    <IconButton
+      aria-label="selectFlow"
+      component="span"
+      disabled={disableOption()}
+      onClick={handleOpenFlowSelector}
+      title="Enviar Fluxo"
+    >
+      <AccountTreeIcon className={classes.sendMessageIcons} />
+    </IconButton>
   );
 };
 
@@ -478,18 +496,23 @@ const MessageInputCustom = (props) => {
   const { user } = useContext(AuthContext);
 
   const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
+  const [flowSelectorOpen, setFlowSelectorOpen] = useState(false);
 
   useEffect(() => {
     inputRef.current.focus();
   }, [replyingMessage]);
 
   useEffect(() => {
-    inputRef.current.focus();
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
     return () => {
       setInputMessage("");
       setShowEmoji(false);
       setMedias([]);
-      setReplyingMessage(null);
+      if (setReplyingMessage) {
+        setReplyingMessage(null);
+      }
     };
   }, [ticketId, setReplyingMessage]);
 
@@ -657,6 +680,32 @@ const MessageInputCustom = (props) => {
     return loading || recording || ticketStatus !== "open";
   };
 
+  const handleOpenFlowSelector = () => {
+    setFlowSelectorOpen(true);
+  };
+
+  const handleCloseFlowSelector = () => {
+    setFlowSelectorOpen(false);
+  };
+
+  const handleSelectFlow = async (flow, ticketId) => {
+    try {
+      setLoading(true);
+      await api.post("/flow/execute", {
+        flowId: flow.id,
+        ticketId: ticketId
+      });
+      
+      // Mostrar mensagem de sucesso
+      console.log(`Fluxo "${flow.name}" executado com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao executar fluxo:", error);
+      toastError("Erro ao executar fluxo");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderReplyingMessage = (message) => {
     return (
       <div className={classes.replyginMsgWrapper}>
@@ -735,6 +784,11 @@ const MessageInputCustom = (props) => {
             handleChangeMedias={handleChangeMedias}
           />
 
+          <FlowButton
+            handleOpenFlowSelector={handleOpenFlowSelector}
+            disableOption={disableOption}
+          />
+
           <SignSwitch
             width={props.width}
             setSignMessage={setSignMessage}
@@ -765,6 +819,13 @@ const MessageInputCustom = (props) => {
             handleStartRecording={handleStartRecording}
           />
         </div>
+        
+        <FlowSelector
+          open={flowSelectorOpen}
+          onClose={handleCloseFlowSelector}
+          onSelectFlow={handleSelectFlow}
+          ticketId={ticketId}
+        />
       </Paper>
     );
   }

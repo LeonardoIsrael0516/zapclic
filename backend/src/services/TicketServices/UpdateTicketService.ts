@@ -147,13 +147,15 @@ const UpdateTicketService = async ({
             userId: actionUserId
           });
 
-          io.to(`company-${ticket.companyId}-open`)
-            .to(`queue-${ticket.queueId}-open`)
-            .to(ticketId.toString())
-            .emit(`company-${ticket.companyId}-ticket`, {
-              action: "delete",
-              ticketId: ticket.id
-            });
+          if (io) {
+            io.to(`company-${ticket.companyId}-open`)
+              .to(`queue-${ticket.queueId}-open`)
+              .to(ticketId.toString())
+              .emit(`company-${ticket.companyId}-ticket`, {
+                action: "delete",
+                ticketId: ticket.id
+              });
+          }
 
           return { ticket, oldStatus, oldUserId };
         }
@@ -188,7 +190,7 @@ const UpdateTicketService = async ({
     const settingsTransfTicket = await ListSettingsServiceOne({ companyId: companyId, key: "sendMsgTransfTicket" });
 
     if (settingsTransfTicket?.value === "enabled") {
-      // Mensagem de transferencia da FILA
+      // Mensagem de transferencia do SETOR
       if (oldQueueId !== queueId && oldUserId === userId && !isNil(oldQueueId) && !isNil(queueId)) {
 
         const {language} = await Company.findByPk(companyId);
@@ -232,7 +234,7 @@ const UpdateTicketService = async ({
           await verifyMessage(queueChangedMessage, ticket, ticket.contact);
         }
         else
-          // Mensagem de transferencia do ATENDENTE e da FILA
+          // Mensagem de transferencia do ATENDENTE e do SETOR
           if (oldUserId !== userId && !isNil(oldUserId) && !isNil(userId) && oldQueueId !== queueId && !isNil(oldQueueId) && !isNil(queueId)) {
 
             const {language} = await Company.findByPk(companyId);

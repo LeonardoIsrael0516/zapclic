@@ -8,6 +8,7 @@ import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { useMediaQuery } from "@material-ui/core";
 import ColorModeContext from "./layout/themeContext";
 import { SocketContext, SocketManager } from './context/Socket/SocketContext';
+import { i18n } from "./translate/i18n";
 
 import Routes from "./routes";
 
@@ -85,16 +86,29 @@ const App = () => {
     );
 
     useEffect(() => {
-        const i18nlocale = localStorage.getItem("i18nextLng");
-        const browserLocale = i18nlocale?.substring(0, 2) ?? 'pt';
+        // Função para atualizar o locale baseado no idioma atual do i18n
+        const updateLocale = () => {
+            const currentLanguage = i18n.language || i18n.options.fallbackLng;
+            const browserLocale = currentLanguage?.substring(0, 2) ?? 'pt';
 
-        if (browserLocale === "pt"){
-            setLocale(ptBR);
-        }else if( browserLocale === "en" ) {
-            setLocale(enUS)
-        }else if( browserLocale === "es" )
-            setLocale(esES)
+            if (browserLocale === "pt"){
+                setLocale(ptBR);
+            }else if( browserLocale === "en" ) {
+                setLocale(enUS)
+            }else if( browserLocale === "es" )
+                setLocale(esES)
+        };
 
+        // Atualiza o locale inicialmente
+        updateLocale();
+
+        // Escuta mudanças no idioma
+        i18n.on('languageChanged', updateLocale);
+
+        // Cleanup
+        return () => {
+            i18n.off('languageChanged', updateLocale);
+        };
     }, []);
 
     useEffect(() => {
